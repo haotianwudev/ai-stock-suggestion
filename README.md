@@ -85,9 +85,10 @@ query GetCompanyFacts {
 }
 ```
 
-### 2. Fetch Stock Prices for a Specific Date
+### 2. Fetch Stock Prices
 ```graphql
-query GetPrices {
+# Get prices for a specific date
+query GetPricesByDate {
   stock(ticker: "MSFT") {
     prices(biz_date: "2023-04-15") {
       biz_date
@@ -99,6 +100,71 @@ query GetPrices {
     }
   }
 }
+
+# Get prices within a date range
+query GetPricesByRange {
+  stock(ticker: "AAPL") {
+    prices(start_date: "2023-01-01", end_date: "2023-03-31") {
+      biz_date
+      close
+      volume
+    }
+  }
+}
+
+# Get all prices after a certain date
+query GetPricesAfterDate {
+  stock(ticker: "TSLA") {
+    prices(start_date: "2023-06-01") {
+      biz_date
+      close
+    }
+  }
+}
+
+# Get all prices before a certain date
+query GetPricesBeforeDate {
+  stock(ticker: "GOOGL") {
+    prices(end_date: "2022-12-31") {
+      biz_date
+      close
+    }
+  }
+}
+
+# Get recent prices (last 30 days - default when no dates provided)
+query GetRecentPrices {
+  stock(ticker: "AMZN") {
+    prices {
+      biz_date
+      close
+    }
+  }
+}
+
+# Get consolidated data
+query GetCompanyFacts {
+  stock(ticker: "AAPL") {
+    company {
+      ticker
+      name
+      sector
+      industry
+    }
+    prices(start_date: "2024-01-01", end_date: "2024-03-31") {
+      biz_date
+      close
+      volume
+    }
+    news {
+      title
+      date
+      source
+      url
+    }
+  }
+}
+
 ```
 
 ### 3. Fetch Company News
@@ -239,4 +305,4 @@ INSERT INTO company_facts (ticker, name, sector, industry) VALUES
 
 ## API Documentation
 
-Once the server is running, you can access the full GraphQL schema documentation in the Playground at `http://localhost:4000`. 
+Once the server is running, you can access the full GraphQL schema documentation in the Playground at `http://localhost:4000`.

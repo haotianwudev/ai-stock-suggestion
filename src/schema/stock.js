@@ -30,7 +30,7 @@ const typeDefs = gql`
 
   type Stock {
     company: CompanyFacts!
-    prices(biz_date: String!): [Price!]!
+    prices(start_date: String, end_date: String): [Price!]!
     news: [CompanyNews!]!
   }
 
@@ -39,4 +39,4 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs; 
+module.exports = typeDefs;

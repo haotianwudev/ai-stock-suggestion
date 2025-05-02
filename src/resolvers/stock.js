@@ -43,17 +43,22 @@ const stockResolvers = {
       }
     },
     
-    prices: async ({ ticker }, { biz_date }) => {
+    prices: async ({ ticker }, { start_date, end_date }) => {
       try {
-        // If biz_date is provided, filter by that date, otherwise get recent prices
         let queryText = 'SELECT * FROM prices WHERE ticker = $1';
         const queryParams = [ticker];
         
-        if (biz_date) {
-          queryText += ' AND biz_date = $2';
-          queryParams.push(biz_date);
+        if (start_date && end_date) {
+          queryText += ' AND biz_date BETWEEN $2 AND $3';
+          queryParams.push(start_date, end_date);
+        } else if (start_date) {
+          queryText += ' AND biz_date >= $2';
+          queryParams.push(start_date);
+        } else if (end_date) {
+          queryText += ' AND biz_date <= $2';
+          queryParams.push(end_date);
         } else {
-          // If no date is provided, get the most recent prices (last 30 days)
+          // If no dates are provided, get the most recent prices (last 30 days)
           queryText += ' AND biz_date >= CURRENT_DATE - INTERVAL \'30 days\'';
         }
         
@@ -83,4 +88,4 @@ const stockResolvers = {
   },
 };
 
-module.exports = stockResolvers; 
+module.exports = stockResolvers;
