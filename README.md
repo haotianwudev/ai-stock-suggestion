@@ -183,7 +183,17 @@ query GetFinancialMetrics {
   }
 }
 
-### 4. Fetch Company News
+### 4. Search Stocks by Ticker or Name
+```graphql
+query SearchStocks {
+  searchStocks(query: "aa") {
+    ticker
+    name
+  }
+}
+```
+
+### 5. Fetch Company News
 ```graphql
 query GetCompanyNews {
   stock(ticker: "TSLA") {

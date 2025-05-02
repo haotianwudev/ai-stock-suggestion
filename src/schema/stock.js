@@ -93,8 +93,14 @@ const typeDefs = gql`
     financialMetrics(report_period: String!): FinancialMetrics
   }
 
+  type StockSearchResult {
+    ticker: String!
+    name: String!
+  }
+
   type Query {
     stock(ticker: String!): Stock
+    searchStocks(query: String!): [StockSearchResult!]!
   }
 `;
 

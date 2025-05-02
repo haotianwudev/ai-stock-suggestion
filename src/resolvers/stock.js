@@ -1,12 +1,31 @@
-const { query } = require('../db');
+const db = require('../db');
 
 // Stock resolvers
 const stockResolvers = {
   Query: {
+    searchStocks: async (_, { query }) => {
+      if (query.length < 2) {
+        throw new Error('Search query must be at least 2 characters');
+      }
+
+      try {
+        const result = await db.query(
+          `SELECT ticker, name FROM company_facts 
+           WHERE ticker ILIKE $1 OR name ILIKE $1
+           LIMIT 50`,
+          [`%${query}%`]
+        );
+        return result.rows;
+      } catch (error) {
+        console.error('Error searching stocks:', error);
+        throw new Error('Failed to search stocks');
+      }
+    },
+
     stock: async (_, { ticker }) => {
       try {
         // We just need to verify the stock exists
-        const result = await query(
+        const result = await db.query(
           'SELECT ticker FROM company_facts WHERE ticker = $1',
           [ticker]
         );
@@ -27,7 +46,7 @@ const stockResolvers = {
   Stock: {
     company: async ({ ticker }) => {
       try {
-        const result = await query(
+        const result = await db.query(
           'SELECT * FROM company_facts WHERE ticker = $1',
           [ticker]
         );
@@ -64,7 +83,7 @@ const stockResolvers = {
         
         queryText += ' ORDER BY biz_date DESC';
         
-        const result = await query(queryText, queryParams);
+        const result = await db.query(queryText, queryParams);
         return result.rows;
       } catch (error) {
         console.error('Error fetching prices:', error);
@@ -74,7 +93,7 @@ const stockResolvers = {
     
     news: async ({ ticker }) => {
       try {
-        const result = await query(
+        const result = await db.query(
           'SELECT * FROM company_news WHERE ticker = $1 ORDER BY date DESC',
           [ticker]
         );
@@ -88,7 +107,7 @@ const stockResolvers = {
 
     financialMetrics: async ({ ticker }, { report_period }) => {
       try {
-        const result = await query(
+        const result = await db.query(
           `SELECT * FROM financial_metrics 
            WHERE ticker = $1 AND report_period = $2`,
           [ticker, report_period]
