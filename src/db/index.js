@@ -1,12 +1,15 @@
+require('dotenv').config();
 const { Pool } = require('pg');
 
 // Create a pool instance to manage PostgreSQL connections
+const connectionString = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
+console.log('Connecting to:', process.env.DB_HOST);
+
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Test the connection
@@ -44,4 +47,4 @@ const query = async (text, params) => {
 module.exports = {
   query,
   pool // Exporting the pool for direct access if needed
-}; 
+};
