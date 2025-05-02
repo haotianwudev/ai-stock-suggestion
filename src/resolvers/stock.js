@@ -105,12 +105,30 @@ const stockResolvers = {
       }
     },
 
-    financialMetrics: async ({ ticker }, { report_period }) => {
+    financialMetrics: async ({ ticker }) => {
       try {
         const result = await db.query(
           `SELECT * FROM financial_metrics 
-           WHERE ticker = $1 AND report_period = $2`,
-          [ticker, report_period]
+           WHERE ticker = $1
+           ORDER BY report_period DESC`,
+          [ticker]
+        );
+        
+        return result.rows;
+      } catch (error) {
+        console.error('Error fetching financial metrics:', error);
+        throw new Error('Failed to fetch financial metrics');
+      }
+    },
+
+    financialMetricsLatest: async ({ ticker }) => {
+      try {
+        const result = await db.query(
+          `SELECT * FROM financial_metrics 
+           WHERE ticker = $1
+           ORDER BY report_period DESC
+           LIMIT 1`,
+          [ticker]
         );
         
         if (result.rows.length === 0) {
@@ -119,8 +137,8 @@ const stockResolvers = {
         
         return result.rows[0];
       } catch (error) {
-        console.error('Error fetching financial metrics:', error);
-        throw new Error('Failed to fetch financial metrics');
+        console.error('Error fetching latest financial metrics:', error);
+        throw new Error('Failed to fetch latest financial metrics');
       }
     },
   },

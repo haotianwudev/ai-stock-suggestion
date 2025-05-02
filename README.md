@@ -169,16 +169,32 @@ query GetCompanyFacts {
 
 ### 3. Fetch Financial Metrics
 ```graphql
-query GetFinancialMetrics {
+# Get all financial metrics (returns list ordered by latest first)
+query GetAllFinancialMetrics {
   stock(ticker: "AAPL") {
-    financialMetrics(report_period: "2023-Q4") {
+    financialMetrics {
       report_period
       period
-      revenue
-      net_income
-      eps
-      free_cash_flow
-      ebitda
+      currency
+      market_cap
+      enterprise_value
+      price_to_earnings_ratio
+      price_to_book_ratio
+    }
+  }
+}
+
+# Get just the latest financial metrics
+query GetLatestFinancialMetrics {
+  stock(ticker: "AAPL") {
+    financialMetricsLatest {
+      report_period
+      period
+      currency
+      market_cap
+      enterprise_value
+      price_to_earnings_ratio
+      price_to_book_ratio
     }
   }
 }

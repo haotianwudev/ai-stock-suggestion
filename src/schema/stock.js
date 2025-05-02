@@ -90,7 +90,8 @@ const typeDefs = gql`
     company: CompanyFacts!
     prices(start_date: String, end_date: String): [Price!]!
     news: [CompanyNews!]!
-    financialMetrics(report_period: String!): FinancialMetrics
+    financialMetrics: [FinancialMetrics!]!
+    financialMetricsLatest: FinancialMetrics
   }
 
   type StockSearchResult {
