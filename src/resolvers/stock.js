@@ -64,7 +64,9 @@ const stockResolvers = {
     
     prices: async ({ ticker }, { start_date, end_date }) => {
       try {
-        let queryText = 'SELECT * FROM prices WHERE ticker = $1';
+        let queryText = `SELECT *,
+                        TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted
+                        FROM prices WHERE ticker = $1`;
         const queryParams = [ticker];
         
         if (start_date && end_date) {
@@ -84,7 +86,10 @@ const stockResolvers = {
         queryText += ' ORDER BY biz_date DESC';
         
         const result = await db.query(queryText, queryParams);
-        return result.rows;
+        return result.rows.map(row => ({
+          ...row,
+          biz_date: row.biz_date_formatted
+        }));
       } catch (error) {
         console.error('Error fetching prices:', error);
         throw new Error('Failed to fetch price data');
@@ -94,11 +99,16 @@ const stockResolvers = {
     news: async ({ ticker }) => {
       try {
         const result = await db.query(
-          'SELECT * FROM company_news WHERE ticker = $1 ORDER BY date DESC',
+          `SELECT *,
+          TO_CHAR(date, 'YYYY-MM-DD') as date_formatted
+          FROM company_news WHERE ticker = $1 ORDER BY date DESC`,
           [ticker]
         );
         
-        return result.rows;
+        return result.rows.map(row => ({
+          ...row,
+          date: row.date_formatted
+        }));
       } catch (error) {
         console.error('Error fetching company news:', error);
         throw new Error('Failed to fetch news data');
@@ -108,13 +118,18 @@ const stockResolvers = {
     financialMetrics: async ({ ticker }) => {
       try {
         const result = await db.query(
-          `SELECT * FROM financial_metrics 
+          `SELECT *, 
+           TO_CHAR(report_period, 'YYYY-MM-DD') as report_period_formatted
+           FROM financial_metrics 
            WHERE ticker = $1
            ORDER BY report_period DESC`,
           [ticker]
         );
         
-        return result.rows;
+        return result.rows.map(row => ({
+          ...row,
+          report_period: row.report_period_formatted
+        }));
       } catch (error) {
         console.error('Error fetching financial metrics:', error);
         throw new Error('Failed to fetch financial metrics');
@@ -124,7 +139,9 @@ const stockResolvers = {
     financialMetricsLatest: async ({ ticker }) => {
       try {
         const result = await db.query(
-          `SELECT * FROM financial_metrics 
+          `SELECT *,
+           TO_CHAR(report_period, 'YYYY-MM-DD') as report_period_formatted
+           FROM financial_metrics 
            WHERE ticker = $1
            ORDER BY report_period DESC
            LIMIT 1`,
@@ -135,7 +152,10 @@ const stockResolvers = {
           return null;
         }
         
-        return result.rows[0];
+        return {
+          ...result.rows[0],
+          report_period: result.rows[0].report_period_formatted
+        };
       } catch (error) {
         console.error('Error fetching latest financial metrics:', error);
         throw new Error('Failed to fetch latest financial metrics');
