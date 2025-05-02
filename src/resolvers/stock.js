@@ -85,6 +85,25 @@ const stockResolvers = {
         throw new Error('Failed to fetch news data');
       }
     },
+
+    financialMetrics: async ({ ticker }, { report_period }) => {
+      try {
+        const result = await query(
+          `SELECT * FROM financial_metrics 
+           WHERE ticker = $1 AND report_period = $2`,
+          [ticker, report_period]
+        );
+        
+        if (result.rows.length === 0) {
+          return null;
+        }
+        
+        return result.rows[0];
+      } catch (error) {
+        console.error('Error fetching financial metrics:', error);
+        throw new Error('Failed to fetch financial metrics');
+      }
+    },
   },
 };
 

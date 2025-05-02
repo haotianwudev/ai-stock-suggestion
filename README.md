@@ -167,7 +167,23 @@ query GetCompanyFacts {
 
 ```
 
-### 3. Fetch Company News
+### 3. Fetch Financial Metrics
+```graphql
+query GetFinancialMetrics {
+  stock(ticker: "AAPL") {
+    financialMetrics(report_period: "2023-Q4") {
+      report_period
+      period
+      revenue
+      net_income
+      eps
+      free_cash_flow
+      ebitda
+    }
+  }
+}
+
+### 4. Fetch Company News
 ```graphql
 query GetCompanyNews {
   stock(ticker: "TSLA") {
@@ -294,6 +310,55 @@ CREATE TABLE company_news (
     url TEXT,
     sentiment VARCHAR(10),
     UNIQUE(ticker, title, date)
+);
+
+-- Financial Metrics Table
+CREATE TABLE financial_metrics (
+    id SERIAL PRIMARY KEY,
+    ticker VARCHAR(10) REFERENCES company_facts(ticker),
+    report_period VARCHAR(20) NOT NULL,
+    period VARCHAR(10) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
+    market_cap NUMERIC(20,2),
+    enterprise_value NUMERIC(20,2),
+    price_to_earnings_ratio NUMERIC(10,2),
+    price_to_book_ratio NUMERIC(10,2),
+    price_to_sales_ratio NUMERIC(10,2),
+    enterprise_value_to_ebitda_ratio NUMERIC(10,2),
+    enterprise_value_to_revenue_ratio NUMERIC(10,2),
+    free_cash_flow_yield NUMERIC(10,2),
+    peg_ratio NUMERIC(10,2),
+    gross_margin NUMERIC(10,2),
+    operating_margin NUMERIC(10,2),
+    net_margin NUMERIC(10,2),
+    return_on_equity NUMERIC(10,2),
+    return_on_assets NUMERIC(10,2),
+    return_on_invested_capital NUMERIC(10,2),
+    asset_turnover NUMERIC(10,2),
+    inventory_turnover NUMERIC(10,2),
+    receivables_turnover NUMERIC(10,2),
+    days_sales_outstanding NUMERIC(10,2),
+    operating_cycle NUMERIC(10,2),
+    working_capital_turnover NUMERIC(10,2),
+    current_ratio NUMERIC(10,2),
+    quick_ratio NUMERIC(10,2),
+    cash_ratio NUMERIC(10,2),
+    operating_cash_flow_ratio NUMERIC(10,2),
+    debt_to_equity NUMERIC(10,2),
+    debt_to_assets NUMERIC(10,2),
+    interest_coverage NUMERIC(10,2),
+    revenue_growth NUMERIC(10,2),
+    earnings_growth NUMERIC(10,2),
+    book_value_growth NUMERIC(10,2),
+    earnings_per_share_growth NUMERIC(10,2),
+    free_cash_flow_growth NUMERIC(10,2),
+    operating_income_growth NUMERIC(10,2),
+    ebitda_growth NUMERIC(10,2),
+    payout_ratio NUMERIC(10,2),
+    earnings_per_share NUMERIC(10,2),
+    book_value_per_share NUMERIC(10,2),
+    free_cash_flow_per_share NUMERIC(10,2),
+    UNIQUE(ticker, report_period)
 );
 
 -- Sample data insertion
