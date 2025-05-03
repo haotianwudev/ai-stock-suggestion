@@ -320,7 +320,66 @@ Key Fields:
 - Financial ratios: ROE, margins, growth rates, etc.
 - Valuation metrics: P/E, P/B, P/S ratios
 
-### 6. Search Stocks by Ticker or Name
+### 6. Fetch Latest Sentiment for a Ticker
+```graphql
+query GetLatestSentiment {
+  latestSentiment(ticker: "AAPL") {
+    biz_date
+    overall_signal
+    confidence
+    insider_total
+    insider_bullish
+    insider_bearish
+    insider_value_total
+    insider_value_bullish
+    insider_value_bearish
+    insider_weight
+    news_total
+    news_bullish
+    news_bearish
+    news_neutral
+    news_weight
+    weighted_bullish
+    weighted_bearish
+  }
+}
+```
+
+Sample Response:
+```json
+{
+  "data": {
+    "latestSentiment": {
+      "biz_date": "2025-05-03",
+      "overall_signal": "bullish",
+      "confidence": 47.00,
+      "insider_total": 537,
+      "insider_bullish": 244,
+      "insider_bearish": 293,
+      "insider_value_total": -54417304,
+      "insider_value_bullish": 1610410659,
+      "insider_value_bearish": -1664827963,
+      "insider_weight": 0.30,
+      "news_total": 100,
+      "news_bullish": 49,
+      "news_bearish": 18,
+      "news_neutral": 33,
+      "news_weight": 0.70,
+      "weighted_bullish": 107.50,
+      "weighted_bearish": 100.50
+    }
+  }
+}
+```
+
+Key Fields:
+- `overall_signal`: Composite sentiment signal (bullish/neutral/bearish)
+- `confidence`: Confidence score (0-100)
+- `insider_*`: Insider trading sentiment metrics
+- `news_*`: News sentiment metrics
+- `weighted_*`: Weighted composite scores
+
+### 7. Search Stocks by Ticker or Name
 ```graphql
 query SearchStocks {
   searchStocks(query: "aa") {

@@ -150,11 +150,34 @@ const typeDefs = gql`
     valuation_signal: String!
   }
 
+  type Sentiment {
+    id: Int!
+    ticker: String!
+    biz_date: String!
+    overall_signal: String!
+    confidence: Float!
+    insider_total: Int!
+    insider_bullish: Int!
+    insider_bearish: Int!
+    insider_value_total: Float!
+    insider_value_bullish: Float!
+    insider_value_bearish: Float!
+    insider_weight: Float!
+    news_total: Int!
+    news_bullish: Int!
+    news_bearish: Int!
+    news_neutral: Int!
+    news_weight: Float!
+    weighted_bullish: Float!
+    weighted_bearish: Float!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
     latestValuations(ticker: String!): [Valuation!]!
     latestFundamentals(ticker: String!): Fundamentals
+    latestSentiment(ticker: String!): Sentiment
   }
 `;
 
