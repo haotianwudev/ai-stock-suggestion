@@ -112,7 +112,7 @@ const typeDefs = gql`
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
-    latestValuations: [Valuation!]!
+    latestValuations(ticker: String!): [Valuation!]!
   }
 `;
 

@@ -3,14 +3,16 @@ const db = require('../db');
 // Stock resolvers
 const stockResolvers = {
   Query: {
-    latestValuations: async () => {
+    latestValuations: async (_, { ticker }) => {
       try {
         const result = await db.query(
-          `SELECT DISTINCT ON (ticker, valuation_method)
+          `SELECT DISTINCT ON (valuation_method)
            ticker, valuation_method, intrinsic_value, market_cap, gap, signal,
            TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date
            FROM valuation
-           ORDER BY ticker, valuation_method, biz_date DESC`
+           WHERE ticker = $1
+           ORDER BY valuation_method, biz_date DESC`,
+          [ticker]
         );
         return result.rows;
       } catch (error) {
