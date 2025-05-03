@@ -172,12 +172,70 @@ const typeDefs = gql`
     weighted_bearish: Float!
   }
 
+  type Technicals {
+    id: Int!
+    ticker: String!
+    biz_date: String!
+    signal: String!
+    confidence: Float!
+    trend_signal: String!
+    trend_confidence: Float!
+    trend_score: Float!
+    trend_adx_threshold: Float!
+    trend_ema_crossover_threshold: Boolean!
+    ema_8: Float!
+    ema_21: Float!
+    ema_55: Float!
+    adx: Float!
+    di_plus: Float!
+    di_minus: Float!
+    mr_signal: String!
+    mr_confidence: Float!
+    mr_score: Float!
+    mr_z_score_threshold: Float!
+    mr_rsi_low_threshold: Float!
+    mr_rsi_high_threshold: Float!
+    z_score: Float!
+    bb_upper: Float!
+    bb_lower: Float!
+    rsi_14: Float!
+    rsi_28: Float!
+    momentum_signal: String!
+    momentum_confidence: Float!
+    momentum_score: Float!
+    momentum_min_strength: Float!
+    momentum_volume_ratio_threshold: Float!
+    mom_1m: Float!
+    mom_3m: Float!
+    mom_6m: Float!
+    volume_ratio: Float!
+    volatility_signal: String!
+    volatility_confidence: Float!
+    volatility_score: Float!
+    volatility_low_regime: Float!
+    volatility_high_regime: Float!
+    volatility_z_threshold: Float!
+    hist_vol_21d: Float!
+    vol_regime: Float!
+    vol_z_score: Float!
+    atr_ratio: Float!
+    stat_arb_signal: String!
+    stat_arb_confidence: Float!
+    stat_arb_score: Float!
+    stat_arb_hurst_threshold: Float!
+    stat_arb_skew_threshold: Float!
+    hurst_exp: Float!
+    skewness: Float!
+    kurtosis: Float!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
     latestValuations(ticker: String!): [Valuation!]!
     latestFundamentals(ticker: String!): Fundamentals
     latestSentiment(ticker: String!): Sentiment
+    latestTechnicals(ticker: String!): Technicals
   }
 `;
 

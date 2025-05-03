@@ -379,7 +379,60 @@ Key Fields:
 - `news_*`: News sentiment metrics
 - `weighted_*`: Weighted composite scores
 
-### 7. Search Stocks by Ticker or Name
+### 7. Fetch Latest Technicals for a Ticker
+```graphql
+query GetLatestTechnicals {
+  latestTechnicals(ticker: "AAPL") {
+    biz_date
+    signal
+    confidence
+    trend_signal
+    trend_score
+    ema_8
+    ema_21
+    ema_55
+    rsi_14
+    rsi_28
+    momentum_signal
+    volatility_signal
+    volume_ratio
+  }
+}
+```
+
+Sample Response:
+```json
+{
+  "data": {
+    "latestTechnicals": {
+      "biz_date": "2025-05-03",
+      "signal": "bearish",
+      "confidence": 39.00,
+      "trend_signal": "neutral",
+      "trend_score": 0.1933,
+      "ema_8": 207.9848,
+      "ema_21": 206.6055,
+      "ema_55": 214.2879,
+      "rsi_14": 57.6142,
+      "rsi_28": 45.2189,
+      "momentum_signal": "bearish",
+      "volatility_signal": "bearish",
+      "volume_ratio": 1.2529
+    }
+  }
+}
+```
+
+Key Fields:
+- `signal`: Overall technical signal (bullish/neutral/bearish)
+- `confidence`: Confidence score (0-100)
+- `trend_*`: Trend indicators (EMA, ADX)
+- `rsi_*`: Relative Strength Index values
+- `momentum_*`: Momentum indicators
+- `volatility_*`: Volatility metrics
+- `volume_ratio`: Volume relative to average
+
+### 8. Search Stocks by Ticker or Name
 ```graphql
 query SearchStocks {
   searchStocks(query: "aa") {

@@ -92,6 +92,32 @@ const stockResolvers = {
       }
     },
 
+    latestTechnicals: async (_, { ticker }) => {
+      try {
+        const result = await db.query(
+          `SELECT *,
+           TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted
+           FROM technicals
+           WHERE ticker = $1
+           ORDER BY biz_date DESC
+           LIMIT 1`,
+          [ticker]
+        );
+        
+        if (result.rows.length === 0) {
+          return null;
+        }
+        
+        return {
+          ...result.rows[0],
+          biz_date: result.rows[0].biz_date_formatted
+        };
+      } catch (error) {
+        console.error('Error fetching latest technicals:', error);
+        throw new Error('Failed to fetch latest technicals');
+      }
+    },
+
     stock: async (_, { ticker }) => {
       try {
         // We just need to verify the stock exists
