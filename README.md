@@ -246,7 +246,81 @@ Key Fields:
 - `gap`: The percentage difference between intrinsic value and market cap
 - `signal`: Valuation signal (bullish, bearish, neutral)
 
-### 5. Search Stocks by Ticker or Name
+### 5. Fetch Latest Fundamentals for a Ticker
+```graphql
+query GetLatestFundamentals {
+  latestFundamentals(ticker: "AAPL") {
+    biz_date
+    overall_signal
+    confidence
+    profitability_score
+    profitability_signal
+    growth_score  
+    growth_signal
+    health_score
+    health_signal
+    valuation_score
+    valuation_signal
+    return_on_equity
+    net_margin
+    operating_margin
+    revenue_growth
+    earnings_growth
+    book_value_growth
+    current_ratio
+    debt_to_equity
+    free_cash_flow_per_share
+    earnings_per_share
+    pe_ratio
+    pb_ratio
+    ps_ratio
+  }
+}
+```
+
+Sample Response:
+```json
+{
+  "data": {
+    "latestFundamentals": {
+      "biz_date": "2025-05-02",
+      "overall_signal": "neutral",
+      "confidence": 25.00,
+      "profitability_score": 3,
+      "profitability_signal": "bullish",
+      "growth_score": 1,
+      "growth_signal": "neutral",
+      "health_score": 1,
+      "health_signal": "neutral",
+      "valuation_score": 3,
+      "valuation_signal": "bearish",
+      "return_on_equity": 1.4530,
+      "net_margin": 0.2430,
+      "operating_margin": 0.3177,
+      "revenue_growth": 0.0121,
+      "earnings_growth": 0.0258,
+      "book_value_growth": 0.1722,
+      "current_ratio": 0.9200,
+      "debt_to_equity": 4.1500,
+      "free_cash_flow_per_share": 6.5200,
+      "earnings_per_share": 6.3600,
+      "pe_ratio": 40.1800,
+      "pb_ratio": 57.8700,
+      "ps_ratio": 9.7600
+    }
+  }
+}
+```
+
+Key Fields:
+- `overall_signal`: Composite signal (bullish/neutral/bearish)
+- `confidence`: Confidence score (0-100)
+- `*_score`: Component scores (1-3 scale)
+- `*_signal`: Component signals
+- Financial ratios: ROE, margins, growth rates, etc.
+- Valuation metrics: P/E, P/B, P/S ratios
+
+### 6. Search Stocks by Ticker or Name
 ```graphql
 query SearchStocks {
   searchStocks(query: "aa") {
