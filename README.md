@@ -199,7 +199,57 @@ query GetLatestFinancialMetrics {
   }
 }
 
-### 4. Search Stocks by Ticker or Name
+### 4. Fetch Latest Valuations
+```graphql
+query GetLatestValuations {
+  latestValuations {
+    ticker
+    valuation_method
+    intrinsic_value
+    market_cap
+    gap
+    signal
+    biz_date
+  }
+}
+```
+
+Sample Response:
+```json
+{
+  "data": {
+    "latestValuations": [
+      {
+        "ticker": "AAPL",
+        "valuation_method": "dcf",
+        "intrinsic_value": 1420628865999.6406,
+        "market_cap": 3130149351010.0000,
+        "gap": -0.5461,
+        "signal": "bearish",
+        "biz_date": "2025-05-02"
+      },
+      {
+        "ticker": "AAPL",
+        "valuation_method": "owner_earnings",
+        "intrinsic_value": 653774055555.5559,
+        "market_cap": 3130149351010.0000,
+        "gap": -0.7911,
+        "signal": "bearish",
+        "biz_date": "2025-05-02"
+      }
+    ]
+  }
+}
+```
+
+Key Fields:
+- `valuation_method`: The valuation approach used (dcf, owner_earnings, ev_ebitda, etc.)
+- `intrinsic_value`: The calculated intrinsic value of the company
+- `market_cap`: The current market capitalization
+- `gap`: The percentage difference between intrinsic value and market cap
+- `signal`: Valuation signal (bullish, bearish, neutral)
+
+### 5. Search Stocks by Ticker or Name
 ```graphql
 query SearchStocks {
   searchStocks(query: "aa") {

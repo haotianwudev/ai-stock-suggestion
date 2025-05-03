@@ -3,6 +3,22 @@ const db = require('../db');
 // Stock resolvers
 const stockResolvers = {
   Query: {
+    latestValuations: async () => {
+      try {
+        const result = await db.query(
+          `SELECT DISTINCT ON (ticker, valuation_method)
+           ticker, valuation_method, intrinsic_value, market_cap, gap, signal,
+           TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date
+           FROM valuation
+           ORDER BY ticker, valuation_method, biz_date DESC`
+        );
+        return result.rows;
+      } catch (error) {
+        console.error('Error fetching latest valuations:', error);
+        throw new Error('Failed to fetch latest valuations');
+      }
+    },
+
     searchStocks: async (_, { query }) => {
       if (query.length < 2) {
         throw new Error('Search query must be at least 2 characters');

@@ -99,9 +99,20 @@ const typeDefs = gql`
     name: String!
   }
 
+  type Valuation {
+    ticker: String!
+    valuation_method: String!
+    intrinsic_value: Float!
+    market_cap: Float!
+    gap: Float!
+    signal: String!
+    biz_date: String!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
+    latestValuations: [Valuation!]!
   }
 `;
 
