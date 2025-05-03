@@ -166,13 +166,13 @@ const stockResolvers = {
       }
     },
     
-    news: async ({ ticker }) => {
+    news: async ({ ticker }, { limit = 100 }) => {
       try {
         const result = await db.query(
           `SELECT *,
           TO_CHAR(date, 'YYYY-MM-DD') as date_formatted
-          FROM company_news WHERE ticker = $1 ORDER BY date DESC`,
-          [ticker]
+          FROM company_news WHERE ticker = $1 ORDER BY date DESC LIMIT $2`,
+          [ticker, limit]
         );
         
         return result.rows.map(row => ({
