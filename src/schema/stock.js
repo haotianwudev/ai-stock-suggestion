@@ -89,7 +89,7 @@ const typeDefs = gql`
   type Stock {
     company: CompanyFacts!
     prices(start_date: String, end_date: String): [Price!]!
-    news: [CompanyNews!]!
+    news(limit: Int = 100): [CompanyNews!]!
     financialMetrics: [FinancialMetrics!]!
     financialMetricsLatest: FinancialMetrics
   }
