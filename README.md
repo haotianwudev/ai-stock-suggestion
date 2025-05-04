@@ -71,6 +71,35 @@ The GraphQL server will be available at `http://localhost:4000` (or the PORT you
 
 Open the GraphQL Playground at `http://localhost:4000` and try these queries:
 
+### AI Agent Signals
+```graphql
+# Get the latest signal for a specific ticker and agent
+query GetLatestAgentSignal {
+  latestAgentSignal(ticker: "AAPL", agent: "warren_buffett") {
+    ticker
+    agent
+    signal
+    confidence
+    reasoning
+    biz_date
+  }
+}
+
+# Sample Response:
+{
+  "data": {
+    "latestAgentSignal": {
+      "ticker": "AAPL",
+      "agent": "warren_buffett",
+      "signal": "bearish",
+      "confidence": 75.00,
+      "reasoning": "While Apple (AAPL) demonstrates a strong economic moat...",
+      "biz_date": "2025-05-04"
+    }
+  }
+}
+```
+
 ### 1. Fetch Company Information
 ```graphql
 query GetCompanyFacts {

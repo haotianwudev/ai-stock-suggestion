@@ -229,6 +229,18 @@ const typeDefs = gql`
     kurtosis: Float!
   }
 
+  type AgentSignal {
+    id: Int!
+    ticker: String!
+    agent: String!
+    signal: String!
+    confidence: Float!
+    reasoning: String
+    biz_date: String!
+    created_at: String!
+    updated_at: String!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
@@ -236,6 +248,7 @@ const typeDefs = gql`
     latestFundamentals(ticker: String!): Fundamentals
     latestSentiment(ticker: String!): Sentiment
     latestTechnicals(ticker: String!): Technicals
+    latestAgentSignal(ticker: String!, agent: String!): AgentSignal
   }
 `;
 
