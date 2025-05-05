@@ -100,6 +100,74 @@ query GetLatestAgentSignal {
 }
 ```
 
+### Sophie Analysis
+```graphql
+# Get the latest Sophie analysis for a ticker
+query GetLatestSophieAnalysis {
+  latestSophieAnalysis(ticker: "AAPL") {
+    id
+    ticker
+    biz_date
+    signal
+    confidence
+    overall_score
+    reasoning
+    short_term_outlook
+    medium_term_outlook
+    long_term_outlook
+    bullish_factors
+    bearish_factors
+    risks
+    model_name
+    model_display_name
+    created_at
+    updated_at
+  }
+}
+
+# Sample Response:
+{
+  "data": {
+    "latestSophieAnalysis": {
+      "id": 2,
+      "ticker": "AAPL",
+      "biz_date": "2025-05-04",
+      "signal": "neutral",
+      "confidence": 55.00,
+      "overall_score": 48.00,
+      "reasoning": "AAPL presents a mixed picture across valuation, technicals, sentiment, and fundamentals. Valuation metrics (DCF, owner_earnings, residual_income) suggest the stock is overvalued, while EV/EBITDA is neutral. Technical indicators are bearish, with momentum and volatility signaling downside risk. Sentiment is slightly bullish due to positive news flow, but insider trading shows net selling. Fundamentals are neutral with strong profitability but high valuation multiples and modest growth.",
+      "short_term_outlook": "Bearish due to technical weakness and high valuation multiples. Potential for short-term downside.",
+      "medium_term_outlook": "Neutral as sentiment and fundamentals balance out. Growth prospects may improve but valuation remains a concern.",
+      "long_term_outlook": "Neutral to slightly bullish if AAPL can sustain profitability and improve growth, but current valuation limits upside.",
+      "bullish_factors": [
+        "Strong profitability (high ROE, net margin, operating margin)",
+        "Positive news sentiment",
+        "Stable free cash flow per share",
+        "Long-term brand strength and ecosystem advantages"
+      ],
+      "bearish_factors": [
+        "Overvalued based on DCF, owner earnings, and residual income",
+        "Bearish technical signals (momentum, volatility)",
+        "High P/E, P/B, and P/S ratios",
+        "Modest revenue and earnings growth",
+        "Net insider selling"
+      ],
+      "risks": [
+        "Macroeconomic slowdown impacting consumer spending",
+        "Increased competition in hardware/services",
+        "Regulatory risks (app store, antitrust)",
+        "Valuation contraction if growth disappoints",
+        "Technical breakdown leading to further downside"
+      ],
+      "model_name": "deepseek-chat",
+      "model_display_name": "DEEPSEEK",
+      "created_at": "2025-05-05T00:45:11.621Z",
+      "updated_at": "2025-05-05T00:45:11.621Z"
+    }
+  }
+}
+```
+
 ### 1. Fetch Company Information
 ```graphql
 query GetCompanyFacts {

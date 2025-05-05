@@ -144,6 +144,36 @@ const stockResolvers = {
       }
     },
 
+    latestSophieAnalysis: async (_, { ticker }) => {
+      try {
+        const result = await db.query(
+          `SELECT *,
+           TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted,
+           TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at_formatted,
+           TO_CHAR(updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at_formatted
+           FROM sophie_analysis
+           WHERE ticker = $1
+           ORDER BY biz_date DESC
+           LIMIT 1`,
+          [ticker]
+        );
+        
+        if (result.rows.length === 0) {
+          return null;
+        }
+        
+        return {
+          ...result.rows[0],
+          biz_date: result.rows[0].biz_date_formatted,
+          created_at: result.rows[0].created_at_formatted,
+          updated_at: result.rows[0].updated_at_formatted
+        };
+      } catch (error) {
+        console.error('Error fetching latest Sophie analysis:', error);
+        throw new Error('Failed to fetch latest Sophie analysis');
+      }
+    },
+
     stock: async (_, { ticker }) => {
       try {
         // We just need to verify the stock exists

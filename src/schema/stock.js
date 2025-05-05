@@ -241,6 +241,26 @@ const typeDefs = gql`
     updated_at: String!
   }
 
+  type SophieAnalysis {
+    id: Int!
+    ticker: String!
+    biz_date: String!
+    signal: String!
+    confidence: Float!
+    overall_score: Float!
+    reasoning: String
+    short_term_outlook: String
+    medium_term_outlook: String
+    long_term_outlook: String
+    bullish_factors: [String]
+    bearish_factors: [String]
+    risks: [String]
+    model_name: String
+    model_display_name: String
+    created_at: String!
+    updated_at: String!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
@@ -249,6 +269,7 @@ const typeDefs = gql`
     latestSentiment(ticker: String!): Sentiment
     latestTechnicals(ticker: String!): Technicals
     latestAgentSignal(ticker: String!, agent: String!): AgentSignal
+    latestSophieAnalysis(ticker: String!): SophieAnalysis
   }
 `;
 
