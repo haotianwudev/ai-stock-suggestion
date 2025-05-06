@@ -261,6 +261,12 @@ const typeDefs = gql`
     updated_at: String!
   }
 
+  type BatchStock {
+    ticker: String!
+    company: CompanyFacts!
+    prices: [Price!]!
+  }
+
   type Query {
     stock(ticker: String!): Stock
     searchStocks(query: String!): [StockSearchResult!]!
@@ -270,6 +276,7 @@ const typeDefs = gql`
     latestTechnicals(ticker: String!): Technicals
     latestAgentSignal(ticker: String!, agent: String!): AgentSignal
     latestSophieAnalysis(ticker: String!): SophieAnalysis
+    batchStocks(tickers: [String!]!, start_date: String, end_date: String): [BatchStock!]!
   }
 `;
 

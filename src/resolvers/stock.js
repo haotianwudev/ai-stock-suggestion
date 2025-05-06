@@ -174,6 +174,71 @@ const stockResolvers = {
       }
     },
 
+    batchStocks: async (_, { tickers, start_date, end_date }) => {
+      try {
+        if (!tickers || tickers.length === 0) {
+          throw new Error('At least one ticker must be provided');
+        }
+
+        // First get company facts for all tickers
+        const tickerParams = tickers.map((_, i) => `$${i + 1}`).join(',');
+        const companiesResult = await db.query(
+          `SELECT * FROM company_facts WHERE ticker IN (${tickerParams})`,
+          tickers
+        );
+
+        // Then get prices for all tickers
+        let pricesQuery = `SELECT ticker, 
+                         TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted,
+                         open, high, low, close, volume
+                         FROM prices 
+                         WHERE ticker IN (${tickerParams})`;
+        const pricesParams = [...tickers];
+        
+        if (start_date && end_date) {
+          pricesQuery += ' AND biz_date BETWEEN $' + (tickers.length + 1) + ' AND $' + (tickers.length + 2);
+          pricesParams.push(start_date, end_date);
+        } else if (start_date) {
+          pricesQuery += ' AND biz_date >= $' + (tickers.length + 1);
+          pricesParams.push(start_date);
+        } else if (end_date) {
+          pricesQuery += ' AND biz_date <= $' + (tickers.length + 1);
+          pricesParams.push(end_date);
+        } else {
+          pricesQuery += ' AND biz_date >= CURRENT_DATE - INTERVAL \'30 days\'';
+        }
+        
+        pricesQuery += ' ORDER BY ticker, biz_date DESC';
+        const pricesResult = await db.query(pricesQuery, pricesParams);
+        
+        // Group prices by ticker
+        const pricesByTicker = {};
+        pricesResult.rows.forEach(row => {
+          if (!pricesByTicker[row.ticker]) {
+            pricesByTicker[row.ticker] = [];
+          }
+          pricesByTicker[row.ticker].push({
+            biz_date: row.biz_date_formatted,
+            open: row.open,
+            high: row.high,
+            low: row.low,
+            close: row.close,
+            volume: row.volume
+          });
+        });
+        
+        // Combine company facts with prices
+        return companiesResult.rows.map(company => ({
+          ticker: company.ticker,
+          company,
+          prices: pricesByTicker[company.ticker] || []
+        }));
+      } catch (error) {
+        console.error('Error fetching batch stocks:', error);
+        throw new Error('Failed to fetch batch stock data');
+      }
+    },
+
     stock: async (_, { ticker }) => {
       try {
         // We just need to verify the stock exists

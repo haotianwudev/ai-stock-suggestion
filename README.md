@@ -529,7 +529,88 @@ Key Fields:
 - `volatility_*`: Volatility metrics
 - `volume_ratio`: Volume relative to average
 
-### 8. Search Stocks by Ticker or Name
+### 8. Batch Stock Data
+```graphql
+# Get company facts and prices for multiple tickers
+query GetBatchStocks {
+  batchStocks(tickers: ["AAPL", "MSFT", "TSLA"]) {
+    ticker
+    company {
+      name
+      sector
+      industry
+    }
+    prices {
+      biz_date
+      close
+    }
+  }
+}
+
+# Get batch data with date range
+query GetBatchStocksWithDates {
+  batchStocks(
+    tickers: ["GOOGL", "AMZN"]
+    start_date: "2024-01-01"
+    end_date: "2024-03-31"
+  ) {
+    ticker
+    company {
+      name
+    }
+    prices {
+      biz_date
+      close
+    }
+  }
+}
+
+# Sample Response:
+{
+  "data": {
+    "batchStocks": [
+      {
+        "ticker": "AAPL",
+        "company": {
+          "name": "Apple Inc.",
+          "sector": "Technology",
+          "industry": "Consumer Electronics"
+        },
+        "prices": [
+          {
+            "biz_date": "2024-03-31",
+            "close": 172.28
+          },
+          {
+            "biz_date": "2024-03-28",
+            "close": 171.48
+          }
+        ]
+      },
+      {
+        "ticker": "MSFT",
+        "company": {
+          "name": "Microsoft Corporation",
+          "sector": "Technology",
+          "industry": "Software"
+        },
+        "prices": [
+          {
+            "biz_date": "2024-03-31",
+            "close": 420.72
+          },
+          {
+            "biz_date": "2024-03-28",
+            "close": 421.65
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 9. Search Stocks by Ticker or Name
 ```graphql
 query SearchStocks {
   searchStocks(query: "aa") {
