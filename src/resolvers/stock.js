@@ -227,12 +227,38 @@ const stockResolvers = {
           });
         });
         
-        // Combine company facts with prices
-        return companiesResult.rows.map(company => ({
-          ticker: company.ticker,
-          company,
-          prices: pricesByTicker[company.ticker] || []
-        }));
+        // Get Sophie analysis for all tickers
+        const sophieResults = await Promise.all(
+          tickers.map(ticker => 
+            db.query(
+              `SELECT *,
+               TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted,
+               TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at_formatted,
+               TO_CHAR(updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at_formatted
+               FROM sophie_analysis
+               WHERE ticker = $1
+               ORDER BY biz_date DESC
+               LIMIT 1`,
+              [ticker]
+            )
+          )
+        );
+
+        // Combine company facts with prices and Sophie analysis
+        return companiesResult.rows.map((company, index) => {
+          const sophieRow = sophieResults[index].rows[0];
+          return {
+            ticker: company.ticker,
+            company,
+            prices: pricesByTicker[company.ticker] || [],
+            latestSophieAnalysis: sophieRow ? {
+              ...sophieRow,
+              biz_date: sophieRow.biz_date_formatted,
+              created_at: sophieRow.created_at_formatted,
+              updated_at: sophieRow.updated_at_formatted
+            } : null
+          };
+        });
       } catch (error) {
         console.error('Error fetching batch stocks:', error);
         throw new Error('Failed to fetch batch stock data');
