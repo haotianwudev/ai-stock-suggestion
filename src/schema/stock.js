@@ -265,6 +265,7 @@ const typeDefs = gql`
     ticker: String!
     company: CompanyFacts!
     prices: [Price!]!
+    latestSophieAnalysis: SophieAnalysis
   }
 
   type Query {
