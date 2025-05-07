@@ -278,6 +278,7 @@ const typeDefs = gql`
     latestAgentSignal(ticker: String!, agent: String!): AgentSignal
     latestSophieAnalysis(ticker: String!): SophieAnalysis
     batchStocks(tickers: [String!]!, start_date: String, end_date: String): [BatchStock!]!
+    coveredTickers: [String!]!
   }
 `;
 
