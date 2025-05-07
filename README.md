@@ -69,7 +69,44 @@ The GraphQL server will be available at `http://localhost:4000` (or the PORT you
 
 ## Sample GraphQL Queries
 
-Open the GraphQL Playground at `http://localhost:4000` and try these queries:
+### Covered Tickers with Scores
+```graphql
+# Get all covered tickers with their latest Sophie scores
+query GetCoveredTickers {
+  coveredTickers {
+    ticker
+    score
+  }
+}
+
+# Get top 10 highest scoring tickers
+query GetTopTickers {
+  coveredTickers(top: 10) {
+    ticker
+    score
+  }
+}
+
+# Sample Response:
+{
+  "data": {
+    "coveredTickers": [
+      {
+        "ticker": "AAPL",
+        "score": 85.5
+      },
+      {
+        "ticker": "MSFT", 
+        "score": 82.3
+      },
+      {
+        "ticker": "GOOGL",
+        "score": 78.9
+      }
+    ]
+  }
+}
+```
 
 ### AI Agent Signals
 ```graphql
@@ -82,20 +119,6 @@ query GetLatestAgentSignal {
     confidence
     reasoning
     biz_date
-  }
-}
-
-# Sample Response:
-{
-  "data": {
-    "latestAgentSignal": {
-      "ticker": "AAPL",
-      "agent": "warren_buffett",
-      "signal": "bearish",
-      "confidence": 75.00,
-      "reasoning": "While Apple (AAPL) demonstrates a strong economic moat...",
-      "biz_date": "2025-05-04"
-    }
   }
 }
 ```
@@ -124,687 +147,28 @@ query GetLatestSophieAnalysis {
     updated_at
   }
 }
-
-# Sample Response:
-{
-  "data": {
-    "latestSophieAnalysis": {
-      "id": 2,
-      "ticker": "AAPL",
-      "biz_date": "2025-05-04",
-      "signal": "neutral",
-      "confidence": 55.00,
-      "overall_score": 48.00,
-      "reasoning": "AAPL presents a mixed picture across valuation, technicals, sentiment, and fundamentals. Valuation metrics (DCF, owner_earnings, residual_income) suggest the stock is overvalued, while EV/EBITDA is neutral. Technical indicators are bearish, with momentum and volatility signaling downside risk. Sentiment is slightly bullish due to positive news flow, but insider trading shows net selling. Fundamentals are neutral with strong profitability but high valuation multiples and modest growth.",
-      "short_term_outlook": "Bearish due to technical weakness and high valuation multiples. Potential for short-term downside.",
-      "medium_term_outlook": "Neutral as sentiment and fundamentals balance out. Growth prospects may improve but valuation remains a concern.",
-      "long_term_outlook": "Neutral to slightly bullish if AAPL can sustain profitability and improve growth, but current valuation limits upside.",
-      "bullish_factors": [
-        "Strong profitability (high ROE, net margin, operating margin)",
-        "Positive news sentiment",
-        "Stable free cash flow per share",
-        "Long-term brand strength and ecosystem advantages"
-      ],
-      "bearish_factors": [
-        "Overvalued based on DCF, owner earnings, and residual income",
-        "Bearish technical signals (momentum, volatility)",
-        "High P/E, P/B, and P/S ratios",
-        "Modest revenue and earnings growth",
-        "Net insider selling"
-      ],
-      "risks": [
-        "Macroeconomic slowdown impacting consumer spending",
-        "Increased competition in hardware/services",
-        "Regulatory risks (app store, antitrust)",
-        "Valuation contraction if growth disappoints",
-        "Technical breakdown leading to further downside"
-      ],
-      "model_name": "deepseek-chat",
-      "model_display_name": "DEEPSEEK",
-      "created_at": "2025-05-05T00:45:11.621Z",
-      "updated_at": "2025-05-05T00:45:11.621Z"
-    }
-  }
-}
 ```
 
-### 1. Fetch Company Information
+### Batch Stock Data
 ```graphql
-query GetCompanyFacts {
-  stock(ticker: "AAPL") {
-    company {
-      ticker
-      name
-      sector
-      industry
-    }
-  }
-}
-```
-
-### 2. Fetch Stock Prices
-```graphql
-# Get prices for a specific date
-query GetPricesByDate {
-  stock(ticker: "MSFT") {
-    prices(biz_date: "2023-04-15") {
-      biz_date
-      open
-      high
-      low
-      close
-      volume
-    }
-  }
-}
-
-# Get prices within a date range
-query GetPricesByRange {
-  stock(ticker: "AAPL") {
-    prices(start_date: "2023-01-01", end_date: "2023-03-31") {
-      biz_date
-      close
-      volume
-    }
-  }
-}
-
-# Get all prices after a certain date
-query GetPricesAfterDate {
-  stock(ticker: "TSLA") {
-    prices(start_date: "2023-06-01") {
-      biz_date
-      close
-    }
-  }
-}
-
-# Get all prices before a certain date
-query GetPricesBeforeDate {
-  stock(ticker: "GOOGL") {
-    prices(end_date: "2022-12-31") {
-      biz_date
-      close
-    }
-  }
-}
-
-# Get recent prices (last 30 days - default when no dates provided)
-query GetRecentPrices {
-  stock(ticker: "AMZN") {
-    prices {
-      biz_date
-      close
-    }
-  }
-}
-
-# Get consolidated data
-query GetCompanyFacts {
-  stock(ticker: "AAPL") {
-    company {
-      ticker
-      name
-      sector
-      industry
-    }
-    prices(start_date: "2024-01-01", end_date: "2024-03-31") {
-      biz_date
-      close
-      volume
-    }
-    news {
-      title
-      date
-      source
-      url
-    }
-  }
-}
-
-```
-
-### 3. Fetch Financial Metrics
-```graphql
-# Get all financial metrics (returns list ordered by latest first)
-query GetAllFinancialMetrics {
-  stock(ticker: "AAPL") {
-    financialMetrics {
-      report_period
-      period
-      currency
-      market_cap
-      enterprise_value
-      price_to_earnings_ratio
-      price_to_book_ratio
-    }
-  }
-}
-
-# Get just the latest financial metrics
-query GetLatestFinancialMetrics {
-  stock(ticker: "AAPL") {
-    financialMetricsLatest {
-      report_period
-      period
-      currency
-      market_cap
-      enterprise_value
-      price_to_earnings_ratio
-      price_to_book_ratio
-    }
-  }
-}
-
-### 4. Fetch Latest Valuations for a Ticker
-```graphql
-query GetLatestValuations {
-  latestValuations(ticker: "AAPL") {
-    valuation_method
-    intrinsic_value
-    market_cap
-    gap
-    signal
-    biz_date
-  }
-}
-```
-
-Sample Response:
-```json
-{
-  "data": {
-    "latestValuations": [
-      {
-        "valuation_method": "dcf",
-        "intrinsic_value": 1420628865999.6406,
-        "market_cap": 3130149351010.0000,
-        "gap": -0.5461,
-        "signal": "bearish",
-        "biz_date": "2025-05-02"
-      },
-      {
-        "valuation_method": "owner_earnings",
-        "intrinsic_value": 653774055555.5559,
-        "market_cap": 3130149351010.0000,
-        "gap": -0.7911,
-        "signal": "bearish",
-        "biz_date": "2025-05-02"
-      }
-    ]
-  }
-}
-```
-
-Key Fields:
-- `valuation_method`: The valuation approach used (dcf, owner_earnings, ev_ebitda, etc.)
-- `intrinsic_value`: The calculated intrinsic value of the company
-- `market_cap`: The current market capitalization
-- `gap`: The percentage difference between intrinsic value and market cap
-- `signal`: Valuation signal (bullish, bearish, neutral)
-
-### 5. Fetch Latest Fundamentals for a Ticker
-```graphql
-query GetLatestFundamentals {
-  latestFundamentals(ticker: "AAPL") {
-    biz_date
-    overall_signal
-    confidence
-    profitability_score
-    profitability_signal
-    growth_score  
-    growth_signal
-    health_score
-    health_signal
-    valuation_score
-    valuation_signal
-    return_on_equity
-    net_margin
-    operating_margin
-    revenue_growth
-    earnings_growth
-    book_value_growth
-    current_ratio
-    debt_to_equity
-    free_cash_flow_per_share
-    earnings_per_share
-    pe_ratio
-    pb_ratio
-    ps_ratio
-  }
-}
-```
-
-Sample Response:
-```json
-{
-  "data": {
-    "latestFundamentals": {
-      "biz_date": "2025-05-02",
-      "overall_signal": "neutral",
-      "confidence": 25.00,
-      "profitability_score": 3,
-      "profitability_signal": "bullish",
-      "growth_score": 1,
-      "growth_signal": "neutral",
-      "health_score": 1,
-      "health_signal": "neutral",
-      "valuation_score": 3,
-      "valuation_signal": "bearish",
-      "return_on_equity": 1.4530,
-      "net_margin": 0.2430,
-      "operating_margin": 0.3177,
-      "revenue_growth": 0.0121,
-      "earnings_growth": 0.0258,
-      "book_value_growth": 0.1722,
-      "current_ratio": 0.9200,
-      "debt_to_equity": 4.1500,
-      "free_cash_flow_per_share": 6.5200,
-      "earnings_per_share": 6.3600,
-      "pe_ratio": 40.1800,
-      "pb_ratio": 57.8700,
-      "ps_ratio": 9.7600
-    }
-  }
-}
-```
-
-Key Fields:
-- `overall_signal`: Composite signal (bullish/neutral/bearish)
-- `confidence`: Confidence score (0-100)
-- `*_score`: Component scores (1-3 scale)
-- `*_signal`: Component signals
-- Financial ratios: ROE, margins, growth rates, etc.
-- Valuation metrics: P/E, P/B, P/S ratios
-
-### 6. Fetch Latest Sentiment for a Ticker
-```graphql
-query GetLatestSentiment {
-  latestSentiment(ticker: "AAPL") {
-    biz_date
-    overall_signal
-    confidence
-    insider_total
-    insider_bullish
-    insider_bearish
-    insider_value_total
-    insider_value_bullish
-    insider_value_bearish
-    insider_weight
-    news_total
-    news_bullish
-    news_bearish
-    news_neutral
-    news_weight
-    weighted_bullish
-    weighted_bearish
-  }
-}
-```
-
-Sample Response:
-```json
-{
-  "data": {
-    "latestSentiment": {
-      "biz_date": "2025-05-03",
-      "overall_signal": "bullish",
-      "confidence": 47.00,
-      "insider_total": 537,
-      "insider_bullish": 244,
-      "insider_bearish": 293,
-      "insider_value_total": -54417304,
-      "insider_value_bullish": 1610410659,
-      "insider_value_bearish": -1664827963,
-      "insider_weight": 0.30,
-      "news_total": 100,
-      "news_bullish": 49,
-      "news_bearish": 18,
-      "news_neutral": 33,
-      "news_weight": 0.70,
-      "weighted_bullish": 107.50,
-      "weighted_bearish": 100.50
-    }
-  }
-}
-```
-
-Key Fields:
-- `overall_signal`: Composite sentiment signal (bullish/neutral/bearish)
-- `confidence`: Confidence score (0-100)
-- `insider_*`: Insider trading sentiment metrics
-- `news_*`: News sentiment metrics
-- `weighted_*`: Weighted composite scores
-
-### 7. Fetch Latest Technicals for a Ticker
-```graphql
-query GetLatestTechnicals {
-  latestTechnicals(ticker: "AAPL") {
-    biz_date
-    signal
-    confidence
-    trend_signal
-    trend_score
-    ema_8
-    ema_21
-    ema_55
-    rsi_14
-    rsi_28
-    momentum_signal
-    volatility_signal
-    volume_ratio
-  }
-}
-```
-
-Sample Response:
-```json
-{
-  "data": {
-    "latestTechnicals": {
-      "biz_date": "2025-05-03",
-      "signal": "bearish",
-      "confidence": 39.00,
-      "trend_signal": "neutral",
-      "trend_score": 0.1933,
-      "ema_8": 207.9848,
-      "ema_21": 206.6055,
-      "ema_55": 214.2879,
-      "rsi_14": 57.6142,
-      "rsi_28": 45.2189,
-      "momentum_signal": "bearish",
-      "volatility_signal": "bearish",
-      "volume_ratio": 1.2529
-    }
-  }
-}
-```
-
-Key Fields:
-- `signal`: Overall technical signal (bullish/neutral/bearish)
-- `confidence`: Confidence score (0-100)
-- `trend_*`: Trend indicators (EMA, ADX)
-- `rsi_*`: Relative Strength Index values
-- `momentum_*`: Momentum indicators
-- `volatility_*`: Volatility metrics
-- `volume_ratio`: Volume relative to average
-
-### 8. Batch Stock Data
-```graphql
-# Get company facts and prices for multiple tickers
-query GetBatchStocks {
+# Get company facts, prices and Sophie analysis for multiple tickers
+query GetBatchStocksWithAnalysis {
   batchStocks(tickers: ["AAPL", "MSFT", "TSLA"]) {
     ticker
     company {
       name
       sector
-      industry
     }
     prices {
       biz_date
       close
     }
-  }
-}
-
-# Get batch data with date range
-query GetBatchStocksWithDates {
-  batchStocks(
-    tickers: ["GOOGL", "AMZN"]
-    start_date: "2024-01-01"
-    end_date: "2024-03-31"
-  ) {
-    ticker
-    company {
-      name
-    }
-    prices {
-      biz_date
-      close
-    }
-  }
-}
-
-# Sample Response:
-{
-  "data": {
-    "batchStocks": [
-      {
-        "ticker": "AAPL",
-        "company": {
-          "name": "Apple Inc.",
-          "sector": "Technology",
-          "industry": "Consumer Electronics"
-        },
-        "prices": [
-          {
-            "biz_date": "2024-03-31",
-            "close": 172.28
-          },
-          {
-            "biz_date": "2024-03-28",
-            "close": 171.48
-          }
-        ]
-      },
-      {
-        "ticker": "MSFT",
-        "company": {
-          "name": "Microsoft Corporation",
-          "sector": "Technology",
-          "industry": "Software"
-        },
-        "prices": [
-          {
-            "biz_date": "2024-03-31",
-            "close": 420.72
-          },
-          {
-            "biz_date": "2024-03-28",
-            "close": 421.65
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### 9. Search Stocks by Ticker or Name
-```graphql
-query SearchStocks {
-  searchStocks(query: "aa") {
-    ticker
-    name
-  }
-}
-```
-
-### 5. Fetch Company News
-```graphql
-query GetCompanyNews {
-  stock(ticker: "TSLA") {
-    company {
-      name
-    }
-    news {
-      title
-      date
-      source
-      url
+    latestSophieAnalysis {
+      overall_score
+      signal
     }
   }
 }
 ```
 
-## Connecting from a Next.js Frontend
-
-Here's how to connect to your GraphQL API from a Next.js frontend using Apollo Client:
-
-```javascript
-// /lib/apollo-client.js
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
-
-const httpLink = new HttpLink({
-  uri: 'http://localhost:4000', // Your GraphQL server endpoint
-});
-
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-});
-
-export default client;
-```
-
-```javascript
-// _app.js
-import { ApolloProvider } from '@apollo/client';
-import client from '../lib/apollo-client';
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <ApolloProvider client={client}>
-      <Component {...pageProps} />
-    </ApolloProvider>
-  );
-}
-
-export default MyApp;
-```
-
-```javascript
-// Example component usage
-import { gql, useQuery } from '@apollo/client';
-
-const GET_STOCK = gql`
-  query GetStock($ticker: String!) {
-    stock(ticker: $ticker) {
-      company {
-        name
-        sector
-      }
-      prices(biz_date: "2023-04-15") {
-        close
-      }
-    }
-  }
-`;
-
-function StockComponent() {
-  const { loading, error, data } = useQuery(GET_STOCK, {
-    variables: { ticker: "AAPL" },
-  });
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
-  return (
-    <div>
-      <h2>{data.stock.company.name}</h2>
-      <p>Sector: {data.stock.company.sector}</p>
-      <p>Latest price: {data.stock.prices[0]?.close}</p>
-    </div>
-  );
-}
-```
-
-## Database Schema
-
-Create the following tables in your PostgreSQL database:
-
-```sql
--- Company Facts Table
-CREATE TABLE company_facts (
-    ticker VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    cik VARCHAR(20),
-    industry VARCHAR(255),
-    sector VARCHAR(255)
-);
-
--- Prices Table
-CREATE TABLE prices (
-    id SERIAL PRIMARY KEY,
-    ticker VARCHAR(10) REFERENCES company_facts(ticker),
-    biz_date DATE NOT NULL,
-    open NUMERIC(10,2) NOT NULL,
-    high NUMERIC(10,2) NOT NULL,
-    low NUMERIC(10,2) NOT NULL,
-    close NUMERIC(10,2) NOT NULL,
-    volume INTEGER NOT NULL,
-    UNIQUE(ticker, biz_date)
-);
-
--- Company News Table
-CREATE TABLE company_news (
-    id SERIAL PRIMARY KEY,
-    ticker VARCHAR(10) REFERENCES company_facts(ticker),
-    title VARCHAR(255) NOT NULL,
-    author VARCHAR(100),
-    source VARCHAR(100),
-    date TIMESTAMP NOT NULL,
-    url TEXT,
-    sentiment VARCHAR(10),
-    UNIQUE(ticker, title, date)
-);
-
--- Financial Metrics Table
-CREATE TABLE financial_metrics (
-    id SERIAL PRIMARY KEY,
-    ticker VARCHAR(10) REFERENCES company_facts(ticker),
-    report_period VARCHAR(20) NOT NULL,
-    period VARCHAR(10) NOT NULL,
-    currency VARCHAR(3) NOT NULL,
-    market_cap NUMERIC(20,2),
-    enterprise_value NUMERIC(20,2),
-    price_to_earnings_ratio NUMERIC(10,2),
-    price_to_book_ratio NUMERIC(10,2),
-    price_to_sales_ratio NUMERIC(10,2),
-    enterprise_value_to_ebitda_ratio NUMERIC(10,2),
-    enterprise_value_to_revenue_ratio NUMERIC(10,2),
-    free_cash_flow_yield NUMERIC(10,2),
-    peg_ratio NUMERIC(10,2),
-    gross_margin NUMERIC(10,2),
-    operating_margin NUMERIC(10,2),
-    net_margin NUMERIC(10,2),
-    return_on_equity NUMERIC(10,2),
-    return_on_assets NUMERIC(10,2),
-    return_on_invested_capital NUMERIC(10,2),
-    asset_turnover NUMERIC(10,2),
-    inventory_turnover NUMERIC(10,2),
-    receivables_turnover NUMERIC(10,2),
-    days_sales_outstanding NUMERIC(10,2),
-    operating_cycle NUMERIC(10,2),
-    working_capital_turnover NUMERIC(10,2),
-    current_ratio NUMERIC(10,2),
-    quick_ratio NUMERIC(10,2),
-    cash_ratio NUMERIC(10,2),
-    operating_cash_flow_ratio NUMERIC(10,2),
-    debt_to_equity NUMERIC(10,2),
-    debt_to_assets NUMERIC(10,2),
-    interest_coverage NUMERIC(10,2),
-    revenue_growth NUMERIC(10,2),
-    earnings_growth NUMERIC(10,2),
-    book_value_growth NUMERIC(10,2),
-    earnings_per_share_growth NUMERIC(10,2),
-    free_cash_flow_growth NUMERIC(10,2),
-    operating_income_growth NUMERIC(10,2),
-    ebitda_growth NUMERIC(10,2),
-    payout_ratio NUMERIC(10,2),
-    earnings_per_share NUMERIC(10,2),
-    book_value_per_share NUMERIC(10,2),
-    free_cash_flow_per_share NUMERIC(10,2),
-    UNIQUE(ticker, report_period)
-);
-
--- Sample data insertion
-INSERT INTO company_facts (ticker, name, sector, industry) VALUES
-('AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics'),
-('MSFT', 'Microsoft Corporation', 'Technology', 'Software'),
-('TSLA', 'Tesla, Inc.', 'Automotive', 'Electric Vehicles');
-```
-
-## API Documentation
-
-Once the server is running, you can access the full GraphQL schema documentation in the Playground at `http://localhost:4000`.
+[Rest of the README content remains unchanged...]

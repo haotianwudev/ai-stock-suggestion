@@ -265,6 +265,34 @@ const stockResolvers = {
       }
     },
 
+    coveredTickers: async (_, { top }) => {
+      try {
+        let query = `
+          SELECT 
+            sa.ticker,
+            sa.overall_score as score
+          FROM sophie_analysis sa
+          JOIN company_facts cf ON sa.ticker = cf.ticker
+          WHERE sa.biz_date = (
+            SELECT MAX(biz_date) 
+            FROM sophie_analysis 
+            WHERE ticker = sa.ticker
+          )
+          ORDER BY sa.overall_score DESC
+        `;
+        
+        if (top) {
+          query += ` LIMIT ${top}`;
+        }
+
+        const result = await db.query(query);
+        return result.rows;
+      } catch (error) {
+        console.error('Error fetching covered tickers:', error);
+        throw new Error('Failed to fetch covered tickers');
+      }
+    },
+
     stock: async (_, { ticker }) => {
       try {
         // We just need to verify the stock exists
