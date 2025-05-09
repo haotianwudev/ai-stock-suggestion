@@ -20,12 +20,14 @@ async function startServer() {
 
     // Configure CORS for development, production and Apollo Studio
     app.use(cors({
-      origin: [
+      origin: [        
+        'https://studio.apollographql.com', // Apollo Studio
+        'https://sophie-ai-finance.vercel.app',
+        'http://localhost:3000',
         /^http:\/\/localhost(:\d+)?$/, // All localhost ports
         /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/, // HTTP/HTTPS local network IPs
         /^exp:\/\/192\.168\.\d+\.\d+:\d+$/, // Expo local network URIs
         /^https?:\/\/[^\/]*sophie-ai-finance[^\/]*$/, // Any sophie-ai-finance domain
-        'https://studio.apollographql.com' // Apollo Studio
       ],
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS'],
