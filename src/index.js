@@ -1,30 +1,40 @@
-const { ApolloServer } = require('apollo-server');
+const express = require('express');
+const { ApolloServer } = require('apollo-server-express');
+const cors = require('cors');
 const dotenv = require('dotenv');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const db = require('./db');
 
-// Enable CORS for all origins
-const corsOptions = {
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-
 // Load environment variables
 dotenv.config();
 
-// Verify database connection before starting server
 async function startServer() {
   try {
     // Test database connection
     await db.query('SELECT NOW()');
     console.log('✅ Database connection successful');
 
-    // Initialize the Apollo Server
+    // Create Express app
+    const app = express();
+
+    // Configure CORS for development, production and Apollo Studio
+    app.use(cors({
+      origin: [
+        /^http:\/\/localhost(:\d+)?$/, // All localhost ports
+        /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/, // HTTP/HTTPS local network IPs
+        /^exp:\/\/192\.168\.\d+\.\d+:\d+$/, // Expo local network URIs
+        /^https?:\/\/[^\/]*sophie-ai-finance[^\/]*$/, // Any sophie-ai-finance domain
+        'https://studio.apollographql.com' // Apollo Studio
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials']
+    }));
+
+    // Initialize Apollo Server
     const server = new ApolloServer({
-      cors: corsOptions,
       typeDefs,
       resolvers,
       context: { db },
@@ -32,7 +42,6 @@ async function startServer() {
       playground: true,
       formatError: (error) => {
         console.error('GraphQL Error:', error);
-        // Return a sanitized error to the client
         return {
           message: error.message,
           locations: error.locations,
@@ -41,11 +50,15 @@ async function startServer() {
       }
     });
 
+    await server.start();
+    server.applyMiddleware({ app, path: '/graphql', cors: false });
+
     // Start the server
     const PORT = process.env.PORT || 4000;
-    const { url } = await server.listen(PORT);
-    console.log(`🚀 Server ready at ${url}`);
-    console.log(`📝 GraphQL Playground available at ${url}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`📝 GraphQL Playground available at http://localhost:${PORT}${server.graphqlPath}`);
+    });
   } catch (error) {
     console.error('⚠️ Server failed to start');
     console.error('Error details:', error);
