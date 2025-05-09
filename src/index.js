@@ -4,6 +4,14 @@ const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const db = require('./db');
 
+// Enable CORS for all origins
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Load environment variables
 dotenv.config();
 
@@ -16,6 +24,7 @@ async function startServer() {
 
     // Initialize the Apollo Server
     const server = new ApolloServer({
+      cors: corsOptions,
       typeDefs,
       resolvers,
       context: { db },
@@ -45,4 +54,4 @@ async function startServer() {
 }
 
 // Start the server
-startServer(); 
+startServer();
