@@ -131,7 +131,7 @@ const typeDefs = gql`
     book_value_growth_threshold: Float!
     growth_score: Int!
     growth_signal: String!
-    current_ratio: Float!
+    current_ratio: Float
     current_ratio_threshold: Float!
     debt_to_equity: Float!
     debt_to_equity_threshold: Float!
