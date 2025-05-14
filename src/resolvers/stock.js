@@ -228,35 +228,37 @@ const stockResolvers = {
         });
         
         // Get Sophie analysis for all tickers
-        const sophieResults = await Promise.all(
-          tickers.map(ticker => 
-            db.query(
-              `SELECT *,
-               TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted,
-               TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at_formatted,
-               TO_CHAR(updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at_formatted
-               FROM sophie_analysis
-               WHERE ticker = $1
-               ORDER BY biz_date DESC
-               LIMIT 1`,
-              [ticker]
-            )
-          )
-        );
+        const sophieQuery = `
+          SELECT *,
+          TO_CHAR(biz_date, 'YYYY-MM-DD') as biz_date_formatted,
+          TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at_formatted,
+          TO_CHAR(updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at_formatted
+          FROM sophie_analysis
+          WHERE ticker IN (${tickerParams})
+          AND biz_date = (
+            SELECT MAX(biz_date) FROM sophie_analysis WHERE ticker = sophie_analysis.ticker
+          )`;
+        
+        const sophieResult = await db.query(sophieQuery, tickers);
+        
+        // Create a map of sophie analysis by ticker
+        const sophieByTicker = {};
+        sophieResult.rows.forEach(row => {
+          sophieByTicker[row.ticker] = {
+            ...row,
+            biz_date: row.biz_date_formatted,
+            created_at: row.created_at_formatted,
+            updated_at: row.updated_at_formatted
+          };
+        });
 
         // Combine company facts with prices and Sophie analysis
-        return companiesResult.rows.map((company, index) => {
-          const sophieRow = sophieResults[index].rows[0];
+        return companiesResult.rows.map(company => {
           return {
             ticker: company.ticker,
             company,
             prices: pricesByTicker[company.ticker] || [],
-            latestSophieAnalysis: sophieRow ? {
-              ...sophieRow,
-              biz_date: sophieRow.biz_date_formatted,
-              created_at: sophieRow.created_at_formatted,
-              updated_at: sophieRow.updated_at_formatted
-            } : null
+            latestSophieAnalysis: sophieByTicker[company.ticker] || null
           };
         });
       } catch (error) {
