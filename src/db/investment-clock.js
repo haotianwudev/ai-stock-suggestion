@@ -26,18 +26,35 @@ async function getLatestEvaluation() {
 
 async function getLatestData() {
   const result = await db.query(`
+    WITH lagged AS (
+      SELECT
+        biz_date,
+        growth_z_score, inflation_z_score, data_phase, clock_angle,
+        gdp_value,    LAG(gdp_value,    12) OVER (ORDER BY biz_date) AS gdp_prev,
+        cpi_value,    LAG(cpi_value,    12) OVER (ORDER BY biz_date) AS cpi_prev,
+        indpro_value, LAG(indpro_value, 12) OVER (ORDER BY biz_date) AS indpro_prev,
+        tcu_value,
+        unrate_value
+      FROM investment_clock_data
+    )
     SELECT
-      TO_CHAR(biz_date, 'YYYY-MM-DD')  AS "bizDate",
-      CAST(growth_z_score AS FLOAT)     AS "growthZScore",
-      CAST(inflation_z_score AS FLOAT)  AS "inflationZScore",
-      data_phase                        AS "dataPhase",
-      CAST(clock_angle AS FLOAT)        AS "clockAngle",
-      CAST(gdp_value AS FLOAT)          AS "gdpValue",
-      CAST(cpi_value AS FLOAT)          AS "cpiValue",
-      CAST(indpro_value AS FLOAT)       AS "indproValue",
-      CAST(tcu_value AS FLOAT)          AS "tcuValue",
-      CAST(unrate_value AS FLOAT)       AS "unrateValue"
-    FROM investment_clock_data
+      TO_CHAR(biz_date, 'YYYY-MM-DD')   AS "bizDate",
+      CAST(growth_z_score AS FLOAT)      AS "growthZScore",
+      CAST(inflation_z_score AS FLOAT)   AS "inflationZScore",
+      data_phase                         AS "dataPhase",
+      CAST(clock_angle AS FLOAT)         AS "clockAngle",
+      CAST(gdp_value AS FLOAT)           AS "gdpValue",
+      CAST(cpi_value AS FLOAT)           AS "cpiValue",
+      CAST(indpro_value AS FLOAT)        AS "indproValue",
+      CAST(tcu_value AS FLOAT)           AS "tcuValue",
+      CAST(unrate_value AS FLOAT)        AS "unrateValue",
+      CASE WHEN gdp_prev    IS NOT NULL AND gdp_prev    <> 0
+        THEN CAST(ROUND(((gdp_value    - gdp_prev)    / gdp_prev    * 100)::numeric, 2) AS FLOAT) END AS "gdpYoyPct",
+      CASE WHEN cpi_prev    IS NOT NULL AND cpi_prev    <> 0
+        THEN CAST(ROUND(((cpi_value    - cpi_prev)    / cpi_prev    * 100)::numeric, 2) AS FLOAT) END AS "cpiYoyPct",
+      CASE WHEN indpro_prev IS NOT NULL AND indpro_prev <> 0
+        THEN CAST(ROUND(((indpro_value - indpro_prev) / indpro_prev * 100)::numeric, 2) AS FLOAT) END AS "indproYoyPct"
+    FROM lagged
     ORDER BY biz_date DESC
     LIMIT 1
   `);
