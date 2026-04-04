@@ -12,9 +12,12 @@ const investmentClockResolvers = {
 
         // JSONB columns come back as JS objects from pg — convert arrays for GraphQL
         if (current) {
-          current.keyIndicators = Array.isArray(current.keyIndicators) ? current.keyIndicators : [];
-          current.risks = Array.isArray(current.risks) ? current.risks : [];
-          current.recommendedSectors = Array.isArray(current.recommendedSectors) ? current.recommendedSectors : [];
+          current.keyIndicators       = Array.isArray(current.keyIndicators)       ? current.keyIndicators       : [];
+          current.risks               = Array.isArray(current.risks)               ? current.risks               : [];
+          current.recommendedSectors  = Array.isArray(current.recommendedSectors)  ? current.recommendedSectors  : [];
+          current.phaseProbabilities  = Array.isArray(current.phaseProbabilities)  ? current.phaseProbabilities  : [];
+          current.monitoringTriggers  = Array.isArray(current.monitoringTriggers)  ? current.monitoringTriggers  : [];
+          current.sectorRationale     = Array.isArray(current.sectorRationale)     ? current.sectorRationale     : [];
         }
 
         return { current, latestData, history };

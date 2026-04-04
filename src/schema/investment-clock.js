@@ -14,6 +14,22 @@ const investmentClockSchema = gql`
     unrateValue: Float
   }
 
+  type PhaseProbability {
+    phase: String!
+    probability: Float!
+  }
+
+  type MonitoringTrigger {
+    indicator: String!
+    threshold: String!
+    meaning: String!
+  }
+
+  type SectorRationale {
+    etf: String!
+    rationale: String!
+  }
+
   type InvestmentClockEvaluation {
     bizDate: String!
     finalPhase: String!
@@ -26,6 +42,9 @@ const investmentClockSchema = gql`
     bestAsset: String
     recommendedSectors: [String!]
     geminiResearchSummary: String
+    phaseProbabilities: [PhaseProbability!]
+    monitoringTriggers: [MonitoringTrigger!]
+    sectorRationale: [SectorRationale!]
   }
 
   type InvestmentClockResult {

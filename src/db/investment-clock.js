@@ -13,7 +13,10 @@ async function getLatestEvaluation() {
       risks,
       best_asset                       AS "bestAsset",
       recommended_sectors              AS "recommendedSectors",
-      gemini_research_summary          AS "geminiResearchSummary"
+      gemini_research_summary          AS "geminiResearchSummary",
+      phase_probabilities              AS "phaseProbabilities",
+      monitoring_triggers              AS "monitoringTriggers",
+      sector_rationale                 AS "sectorRationale"
     FROM investment_clock_evaluation
     ORDER BY biz_date DESC
     LIMIT 1
