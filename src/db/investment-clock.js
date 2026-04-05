@@ -34,9 +34,9 @@ async function getLatestData() {
         cpi_value,    LAG(cpi_value,    12) OVER (ORDER BY biz_date) AS cpi_prev,
         indpro_value, LAG(indpro_value, 12) OVER (ORDER BY biz_date) AS indpro_prev,
         tcu_value,
-        unrate_value,
-        cli_value,
-        icsa_value,
+        unrate_value, LAG(unrate_value, 12) OVER (ORDER BY biz_date) AS unrate_prev,
+        cli_value,    LAG(cli_value,    12) OVER (ORDER BY biz_date) AS cli_prev,
+        icsa_value,   LAG(icsa_value,   12) OVER (ORDER BY biz_date) AS icsa_prev,
         cpi_yoy,
         cpi_mom_ann
       FROM investment_clock_data
@@ -61,7 +61,13 @@ async function getLatestData() {
       CASE WHEN cpi_prev    IS NOT NULL AND cpi_prev    <> 0
         THEN CAST(ROUND(((cpi_value    - cpi_prev)    / cpi_prev    * 100)::numeric, 2) AS FLOAT) END AS "cpiYoyPct",
       CASE WHEN indpro_prev IS NOT NULL AND indpro_prev <> 0
-        THEN CAST(ROUND(((indpro_value - indpro_prev) / indpro_prev * 100)::numeric, 2) AS FLOAT) END AS "indproYoyPct"
+        THEN CAST(ROUND(((indpro_value - indpro_prev) / indpro_prev * 100)::numeric, 2) AS FLOAT) END AS "indproYoyPct",
+      CASE WHEN cli_prev IS NOT NULL
+        THEN CAST(ROUND((cli_value - cli_prev)::numeric, 2) AS FLOAT) END AS "cliYoyChange",
+      CASE WHEN icsa_prev IS NOT NULL AND icsa_prev <> 0
+        THEN CAST(ROUND(((icsa_value - icsa_prev) / icsa_prev * 100)::numeric, 1) AS FLOAT) END AS "icsaYoyPct",
+      CASE WHEN unrate_prev IS NOT NULL
+        THEN CAST(ROUND((unrate_value - unrate_prev)::numeric, 1) AS FLOAT) END AS "unrateYoyChange"
     FROM lagged
     ORDER BY biz_date DESC
     LIMIT 1

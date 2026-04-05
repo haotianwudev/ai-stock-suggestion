@@ -19,6 +19,9 @@ const investmentClockSchema = gql`
     gdpYoyPct: Float
     cpiYoyPct: Float
     indproYoyPct: Float
+    cliYoyChange: Float
+    icsaYoyPct: Float
+    unrateYoyChange: Float
   }
 
   type PhaseProbability {
