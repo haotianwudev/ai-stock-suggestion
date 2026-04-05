@@ -55,7 +55,10 @@ async function getLatestData() {
       CAST(cli_value AS FLOAT)           AS "cliValue",
       CAST(icsa_value AS FLOAT)          AS "icsaValue",
       CAST(cpi_yoy AS FLOAT)            AS "cpiYoy",
-      CAST(cpi_mom_ann AS FLOAT)         AS "cpiMomAnn",
+      CAST(COALESCE(cpi_mom_ann, (
+        SELECT cpi_mom_ann FROM investment_clock_data
+        WHERE cpi_mom_ann IS NOT NULL ORDER BY biz_date DESC LIMIT 1
+      )) AS FLOAT)                       AS "cpiMomAnn",
       CASE WHEN gdp_prev    IS NOT NULL AND gdp_prev    <> 0
         THEN CAST(ROUND(((gdp_value    - gdp_prev)    / gdp_prev    * 100)::numeric, 2) AS FLOAT) END AS "gdpYoyPct",
       CASE WHEN cpi_prev    IS NOT NULL AND cpi_prev    <> 0
