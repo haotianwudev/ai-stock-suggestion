@@ -38,7 +38,9 @@ async function getLatestData() {
         cli_value,    LAG(cli_value,    12) OVER (ORDER BY biz_date) AS cli_prev,
         icsa_value,   LAG(icsa_value,   12) OVER (ORDER BY biz_date) AS icsa_prev,
         cpi_yoy,
-        cpi_mom_ann
+        cpi_mom_ann,
+        t5yie_value,
+        ppi_yoy
       FROM investment_clock_data
     )
     SELECT
