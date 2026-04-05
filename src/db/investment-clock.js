@@ -96,7 +96,9 @@ async function getHistoricalData(months = 24) {
       CAST(cli_value AS FLOAT)          AS "cliValue",
       CAST(icsa_value AS FLOAT)         AS "icsaValue",
       CAST(cpi_yoy AS FLOAT)           AS "cpiYoy",
-      CAST(cpi_mom_ann AS FLOAT)        AS "cpiMomAnn"
+      CAST(cpi_mom_ann AS FLOAT)        AS "cpiMomAnn",
+      CAST(t5yie_value AS FLOAT)        AS "t5yieValue",
+      CAST(ppi_yoy AS FLOAT)            AS "ppiYoy"
     FROM investment_clock_data
     WHERE biz_date >= CURRENT_DATE - ($1 || ' months')::INTERVAL
     ORDER BY biz_date ASC
