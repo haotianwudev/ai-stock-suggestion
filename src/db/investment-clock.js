@@ -34,7 +34,11 @@ async function getLatestData() {
         cpi_value,    LAG(cpi_value,    12) OVER (ORDER BY biz_date) AS cpi_prev,
         indpro_value, LAG(indpro_value, 12) OVER (ORDER BY biz_date) AS indpro_prev,
         tcu_value,
-        unrate_value
+        unrate_value,
+        cli_value,
+        icsa_value,
+        cpi_yoy,
+        cpi_mom_ann
       FROM investment_clock_data
     )
     SELECT
