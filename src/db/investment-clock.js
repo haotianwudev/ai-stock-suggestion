@@ -54,7 +54,9 @@ async function getLatestData() {
       CAST(unrate_value AS FLOAT)        AS "unrateValue",
       CAST(cli_value AS FLOAT)           AS "cliValue",
       CAST(icsa_value AS FLOAT)          AS "icsaValue",
-      CAST(cpi_yoy AS FLOAT)            AS "cpiYoy",
+      CAST(cpi_yoy AS FLOAT)             AS "cpiYoy",
+      CAST(t5yie_value AS FLOAT)         AS "t5yieValue",
+      CAST(ppi_yoy AS FLOAT)             AS "ppiYoy",
       CAST(COALESCE(cpi_mom_ann, (
         SELECT cpi_mom_ann FROM investment_clock_data
         WHERE cpi_mom_ann IS NOT NULL ORDER BY biz_date DESC LIMIT 1

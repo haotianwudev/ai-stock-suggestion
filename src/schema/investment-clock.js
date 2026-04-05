@@ -16,6 +16,8 @@ const investmentClockSchema = gql`
     icsaValue: Float
     cpiYoy: Float
     cpiMomAnn: Float
+    t5yieValue: Float
+    ppiYoy: Float
     gdpYoyPct: Float
     cpiYoyPct: Float
     indproYoyPct: Float
