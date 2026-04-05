@@ -48,6 +48,10 @@ async function getLatestData() {
       CAST(indpro_value AS FLOAT)        AS "indproValue",
       CAST(tcu_value AS FLOAT)           AS "tcuValue",
       CAST(unrate_value AS FLOAT)        AS "unrateValue",
+      CAST(cli_value AS FLOAT)           AS "cliValue",
+      CAST(icsa_value AS FLOAT)          AS "icsaValue",
+      CAST(cpi_yoy AS FLOAT)            AS "cpiYoy",
+      CAST(cpi_mom_ann AS FLOAT)         AS "cpiMomAnn",
       CASE WHEN gdp_prev    IS NOT NULL AND gdp_prev    <> 0
         THEN CAST(ROUND(((gdp_value    - gdp_prev)    / gdp_prev    * 100)::numeric, 2) AS FLOAT) END AS "gdpYoyPct",
       CASE WHEN cpi_prev    IS NOT NULL AND cpi_prev    <> 0
@@ -73,7 +77,11 @@ async function getHistoricalData(months = 24) {
       CAST(cpi_value AS FLOAT)          AS "cpiValue",
       CAST(indpro_value AS FLOAT)       AS "indproValue",
       CAST(tcu_value AS FLOAT)          AS "tcuValue",
-      CAST(unrate_value AS FLOAT)       AS "unrateValue"
+      CAST(unrate_value AS FLOAT)       AS "unrateValue",
+      CAST(cli_value AS FLOAT)          AS "cliValue",
+      CAST(icsa_value AS FLOAT)         AS "icsaValue",
+      CAST(cpi_yoy AS FLOAT)           AS "cpiYoy",
+      CAST(cpi_mom_ann AS FLOAT)        AS "cpiMomAnn"
     FROM investment_clock_data
     WHERE biz_date >= CURRENT_DATE - ($1 || ' months')::INTERVAL
     ORDER BY biz_date ASC
