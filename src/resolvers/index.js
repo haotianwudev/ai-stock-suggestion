@@ -1,5 +1,6 @@
 const stockResolvers = require('./stock');
 const investmentClockResolvers = require('./investment-clock');
+const quantTrendingResolvers = require('./quant-trending');
 
 // Base resolvers
 const baseResolvers = {
@@ -9,4 +10,4 @@ const baseResolvers = {
 };
 
 // Merge resolvers
-module.exports = [baseResolvers, stockResolvers, investmentClockResolvers];
+module.exports = [baseResolvers, stockResolvers, investmentClockResolvers, quantTrendingResolvers];

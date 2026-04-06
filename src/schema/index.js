@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 const stockSchema = require('./stock');
 const investmentClockSchema = require('./investment-clock');
+const quantTrendingSchema = require('./quant-trending');
 
 // Define base GraphQL schema
 const baseTypeDefs = gql`
@@ -10,4 +11,4 @@ const baseTypeDefs = gql`
 `;
 
 // Merge schemas
-module.exports = [baseTypeDefs, stockSchema, investmentClockSchema];
+module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, quantTrendingSchema];
