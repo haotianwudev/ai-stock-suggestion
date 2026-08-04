@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const db = require('./db');
+const supabaseDb = require('./db/supabase');
+const { getUserFromToken } = require('./auth/verify');
 
 // Load environment variables
 dotenv.config();
@@ -48,7 +50,10 @@ async function startServer() {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      context: { db },
+      context: async ({ req }) => {
+        const user = await getUserFromToken(req.headers.authorization);
+        return { db, supabaseDb, user };
+      },
       introspection: true,
       playground: true,
       formatError: (error) => {

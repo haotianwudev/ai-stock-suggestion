@@ -38,4 +38,4 @@ jobs:
             --source . \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
-            --set-env-vars="DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_HOST=${{ secrets.DB_HOST }},DB_NAME=${{ secrets.DB_NAME }},DB_PORT=5432"
+            --set-env-vars="DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_HOST=${{ secrets.DB_HOST }},DB_NAME=${{ secrets.DB_NAME }},DB_PORT=5432,SUPABASE_URL=${{ secrets.SUPABASE_URL }},SUPABASE_DB_USER=${{ secrets.SUPABASE_DB_USER }},SUPABASE_DB_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD }},SUPABASE_DB_HOST=${{ secrets.SUPABASE_DB_HOST }},SUPABASE_DB_NAME=${{ secrets.SUPABASE_DB_NAME }}"
