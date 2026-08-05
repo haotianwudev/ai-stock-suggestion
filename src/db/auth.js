@@ -11,7 +11,8 @@ const ALLOWED_AVATARS = [
 
 async function getProfile(userId) {
   const result = await db.query(
-    `SELECT display_name AS "displayName", avatar_url AS "avatarUrl"
+    `SELECT display_name AS "displayName", avatar_url AS "avatarUrl",
+            youtube_subscribed AS "youtubeSubscribed"
      FROM profiles WHERE id = $1`,
     [userId]
   );
@@ -28,4 +29,14 @@ async function updateProfile(userId, { displayName, avatarUrl }) {
   return result.rows[0];
 }
 
-module.exports = { getProfile, updateProfile, ALLOWED_AVATARS };
+async function setYoutubeSubscribed(userId, subscribed) {
+  const result = await db.query(
+    `UPDATE profiles SET youtube_subscribed = $2
+     WHERE id = $1
+     RETURNING youtube_subscribed AS "youtubeSubscribed"`,
+    [userId, subscribed]
+  );
+  return result.rows[0];
+}
+
+module.exports = { getProfile, updateProfile, setYoutubeSubscribed, ALLOWED_AVATARS };

@@ -6,6 +6,7 @@ const authSchema = gql`
     email: String
     displayName: String
     avatarUrl: String
+    youtubeSubscribed: Boolean!
   }
 
   extend type Query {
@@ -14,6 +15,7 @@ const authSchema = gql`
 
   extend type Mutation {
     updateProfile(displayName: String!, avatarUrl: String!): User!
+    setYoutubeSubscribed(subscribed: Boolean!): User!
   }
 `;
 
