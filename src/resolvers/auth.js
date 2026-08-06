@@ -19,6 +19,7 @@ const authResolvers = {
         displayName: profile?.displayName ?? null,
         avatarUrl: profile?.avatarUrl ?? null,
         youtubeSubscribed: profile?.youtubeSubscribed ?? false,
+        tier: profile?.tier ?? 1,
       };
     },
   },
@@ -43,6 +44,7 @@ const authResolvers = {
         displayName: profile.displayName,
         avatarUrl: profile.avatarUrl,
         youtubeSubscribed: current?.youtubeSubscribed ?? false,
+        tier: current?.tier ?? 1,
       };
     },
 
@@ -56,6 +58,7 @@ const authResolvers = {
         displayName: current?.displayName ?? null,
         avatarUrl: current?.avatarUrl ?? null,
         youtubeSubscribed: profile.youtubeSubscribed,
+        tier: profile.tier,
       };
     },
   },

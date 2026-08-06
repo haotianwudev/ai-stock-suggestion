@@ -14,12 +14,28 @@ const {
   updatePostBody,
   deletePostById,
 } = require('../db/forum');
+const { getProfile } = require('../db/auth');
+
+// Tier 3+ isn't reachable through any self-service flow yet (subscribing only
+// gets you to tier 2) -- commenting is intentionally locked to everyone
+// except manually-granted tier 9 accounts until a real tier-3 feature ships.
+const MIN_COMMENT_TIER = 3;
 
 function requireUser(context) {
   if (!context.user) {
     throw new AuthenticationError('You must be signed in to do that.');
   }
   return context.user;
+}
+
+async function requireCommentTier(context) {
+  const user = requireUser(context);
+  const profile = await getProfile(user.id);
+  const tier = profile?.tier ?? 1;
+  if (tier < MIN_COMMENT_TIER) {
+    throw new ForbiddenError('Commenting is limited to premium members for now.');
+  }
+  return user;
 }
 
 const forumResolvers = {
@@ -40,14 +56,14 @@ const forumResolvers = {
 
   Mutation: {
     createForumThread: async (parent, { categoryId, title, body }, context) => {
-      const user = requireUser(context);
+      const user = await requireCommentTier(context);
       const threadId = await createThread({ categoryId, title, authorId: user.id });
       await createPost({ threadId, parentPostId: null, authorId: user.id, body });
       return getThreadById(threadId);
     },
 
     postComment: async (parent, { contentSlug, title, body }, context) => {
-      const user = requireUser(context);
+      const user = await requireCommentTier(context);
       const threadId = await getOrCreateThreadForContent('article', contentSlug, title, user.id);
       const locked = await getThreadLockStatus(threadId);
       if (locked) {
@@ -58,7 +74,7 @@ const forumResolvers = {
     },
 
     replyToPost: async (parent, { threadId, parentPostId, body }, context) => {
-      const user = requireUser(context);
+      const user = await requireCommentTier(context);
       const locked = await getThreadLockStatus(threadId);
       if (locked === null) {
         throw new UserInputError('Thread not found.');

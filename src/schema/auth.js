@@ -7,6 +7,7 @@ const authSchema = gql`
     displayName: String
     avatarUrl: String
     youtubeSubscribed: Boolean!
+    tier: Int!
   }
 
   extend type Query {
