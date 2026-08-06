@@ -27,6 +27,11 @@ const THREAD_SELECT = `
   LEFT JOIN profiles p ON p.id = t.created_by
 `;
 
+async function getCategoryById(id) {
+  const result = await db.query(`SELECT id, slug FROM forum_categories WHERE id = $1`, [id]);
+  return result.rows[0] || null;
+}
+
 async function getCategories() {
   const result = await db.query(`
     SELECT
@@ -201,6 +206,7 @@ async function deletePostById(id) {
 }
 
 module.exports = {
+  getCategoryById,
   getCategories,
   getThreads,
   getThreadById,

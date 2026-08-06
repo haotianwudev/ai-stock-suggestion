@@ -1,5 +1,6 @@
 const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server');
 const {
+  getCategoryById,
   getCategories,
   getThreads,
   getThreadById,
@@ -19,7 +20,10 @@ const { getProfile } = require('../db/auth');
 // Tier 3+ isn't reachable through any self-service flow yet (subscribing only
 // gets you to tier 2) -- commenting is intentionally locked to everyone
 // except manually-granted tier 9 accounts until a real tier-3 feature ships.
+// Site Feedback is exempt: everyone should be able to leave feedback
+// regardless of tier, so that category bypasses the check entirely.
 const MIN_COMMENT_TIER = 3;
+const SITE_FEEDBACK_SLUG = 'site-feedback';
 
 function requireUser(context) {
   if (!context.user) {
@@ -28,8 +32,11 @@ function requireUser(context) {
   return context.user;
 }
 
-async function requireCommentTier(context) {
+async function requireCommentAccess(context, categorySlug) {
   const user = requireUser(context);
+  if (categorySlug === SITE_FEEDBACK_SLUG) {
+    return user;
+  }
   const profile = await getProfile(user.id);
   const tier = profile?.tier ?? 1;
   if (tier < MIN_COMMENT_TIER) {
@@ -56,14 +63,15 @@ const forumResolvers = {
 
   Mutation: {
     createForumThread: async (parent, { categoryId, title, body }, context) => {
-      const user = await requireCommentTier(context);
+      const category = await getCategoryById(categoryId);
+      const user = await requireCommentAccess(context, category?.slug);
       const threadId = await createThread({ categoryId, title, authorId: user.id });
       await createPost({ threadId, parentPostId: null, authorId: user.id, body });
       return getThreadById(threadId);
     },
 
     postComment: async (parent, { contentSlug, title, body }, context) => {
-      const user = await requireCommentTier(context);
+      const user = await requireCommentAccess(context, null);
       const threadId = await getOrCreateThreadForContent('article', contentSlug, title, user.id);
       const locked = await getThreadLockStatus(threadId);
       if (locked) {
@@ -74,12 +82,12 @@ const forumResolvers = {
     },
 
     replyToPost: async (parent, { threadId, parentPostId, body }, context) => {
-      const user = await requireCommentTier(context);
-      const locked = await getThreadLockStatus(threadId);
-      if (locked === null) {
+      const thread = await getThreadById(threadId);
+      if (!thread) {
         throw new UserInputError('Thread not found.');
       }
-      if (locked) {
+      const user = await requireCommentAccess(context, thread.categorySlug);
+      if (thread.locked) {
         throw new ForbiddenError('This discussion is locked.');
       }
       const postId = await createPost({ threadId, parentPostId, authorId: user.id, body });
