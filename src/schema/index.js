@@ -4,6 +4,7 @@ const investmentClockSchema = require('./investment-clock');
 const quantTrendingSchema = require('./quant-trending');
 const authSchema = require('./auth');
 const forumSchema = require('./forum');
+const engagementSchema = require('./engagement');
 
 // Define base GraphQL schema
 const baseTypeDefs = gql`
@@ -17,4 +18,4 @@ const baseTypeDefs = gql`
 `;
 
 // Merge schemas
-module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, quantTrendingSchema, authSchema, forumSchema];
+module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, quantTrendingSchema, authSchema, forumSchema, engagementSchema];

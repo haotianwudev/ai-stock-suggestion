@@ -33,7 +33,7 @@ async function setYoutubeSubscribed(userId, subscribed) {
   // Subscribing bumps tier up to at least 2 (or 3 if they'd already liked a
   // video), never down (a tier-9 power user stays 9). Unsubscribing only
   // drops tier 2 back to 1 -- it never touches a tier 3+ membership, since
-  // tiers 3+ are earned via liked_count (see incrementLikedCount) and aren't
+  // tiers 3+ are earned via liked_count (see db/engagement.js) and aren't
   // tied to this claim.
   const result = await db.query(
     `UPDATE profiles SET
@@ -51,32 +51,8 @@ async function setYoutubeSubscribed(userId, subscribed) {
   return result.rows[0];
 }
 
-// Honor-system "liked a paired YouTube video" counter -- no dedup or
-// verification, incremented once per click of "Like on YouTube" (see
-// YoutubeSubscribeGate on the client). Ladder mirrors LIKE_TIER_LADDER in
-// client/src/lib/tiers.ts -- keep both in sync:
-//   subscribed + liked_count >= 1  -> tier 3 (comments)
-//   liked_count >= 5               -> tier 4 (premium articles)
-//   liked_count >= 25              -> tier 5
-//   liked_count >= 100             -> tier 6
-//   liked_count >= 200             -> tier 7 (ladder stops here; 8-9 are manual-only)
-async function incrementLikedCount(userId) {
-  const result = await db.query(
-    `UPDATE profiles SET
-       liked_count = liked_count + 1,
-       tier = CASE
-         WHEN (liked_count + 1) >= 200 THEN GREATEST(tier, 7)
-         WHEN (liked_count + 1) >= 100 THEN GREATEST(tier, 6)
-         WHEN (liked_count + 1) >= 25 THEN GREATEST(tier, 5)
-         WHEN (liked_count + 1) >= 5 THEN GREATEST(tier, 4)
-         WHEN youtube_subscribed = true THEN GREATEST(tier, 3)
-         ELSE tier
-       END
-     WHERE id = $1
-     RETURNING liked_count AS "likedCount", youtube_subscribed AS "youtubeSubscribed", tier`,
-    [userId]
-  );
-  return result.rows[0];
-}
+// liked_count (bumped by attestLiked in db/engagement.js, which tracks *which*
+// video via the liked_videos table) drives tier promotion 3-7 -- see that
+// file for the ladder.
 
-module.exports = { getProfile, updateProfile, setYoutubeSubscribed, incrementLikedCount, ALLOWED_AVATARS };
+module.exports = { getProfile, updateProfile, setYoutubeSubscribed, ALLOWED_AVATARS };

@@ -1,5 +1,5 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
-const { getProfile, updateProfile, setYoutubeSubscribed, incrementLikedCount, ALLOWED_AVATARS } = require('../db/auth');
+const { getProfile, updateProfile, setYoutubeSubscribed, ALLOWED_AVATARS } = require('../db/auth');
 
 function requireUser(context) {
   if (!context.user) {
@@ -53,21 +53,6 @@ const authResolvers = {
     setYoutubeSubscribed: async (parent, { subscribed }, context) => {
       const user = requireUser(context);
       const profile = await setYoutubeSubscribed(user.id, subscribed);
-      const current = await getProfile(user.id);
-      return {
-        id: user.id,
-        email: user.email,
-        displayName: current?.displayName ?? null,
-        avatarUrl: current?.avatarUrl ?? null,
-        youtubeSubscribed: profile.youtubeSubscribed,
-        likedCount: profile.likedCount,
-        tier: profile.tier,
-      };
-    },
-
-    attestLiked: async (parent, args, context) => {
-      const user = requireUser(context);
-      const profile = await incrementLikedCount(user.id);
       const current = await getProfile(user.id);
       return {
         id: user.id,

@@ -18,7 +18,6 @@ const authSchema = gql`
   extend type Mutation {
     updateProfile(displayName: String!, avatarUrl: String!): User!
     setYoutubeSubscribed(subscribed: Boolean!): User!
-    attestLiked: User!
   }
 `;
 
