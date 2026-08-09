@@ -28,13 +28,21 @@ pool.on('error', (err) => {
  * @param {Array} params - Query parameters
  * @returns {Promise} - Query result
  */
+// Logging the full query text on every call adds real per-request overhead
+// (synchronous stdout writes) on hot paths like the profile lookup that runs
+// on nearly every authenticated page load. Only log queries slow enough to
+// actually matter for debugging.
+const SLOW_QUERY_MS = 200;
+
 const query = async (text, params) => {
   const client = await pool.connect();
   try {
     const start = Date.now();
     const result = await client.query(text, params);
     const duration = Date.now() - start;
-    console.log('Executed query', { text, duration, rows: result.rowCount });
+    if (duration > SLOW_QUERY_MS) {
+      console.log('Slow query', { text, duration, rows: result.rowCount });
+    }
     return result;
   } catch (error) {
     console.error('Error executing query', { text, error });
