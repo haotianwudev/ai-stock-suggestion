@@ -12,7 +12,8 @@ const ALLOWED_AVATARS = [
 async function getProfile(userId) {
   const result = await db.query(
     `SELECT display_name AS "displayName", avatar_url AS "avatarUrl",
-            youtube_subscribed AS "youtubeSubscribed", liked_count AS "likedCount", tier
+            youtube_subscribed AS "youtubeSubscribed", liked_count AS "likedCount",
+            donated_cents AS "donatedCents", tier
      FROM profiles WHERE id = $1`,
     [userId]
   );

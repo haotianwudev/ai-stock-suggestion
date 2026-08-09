@@ -4,6 +4,7 @@ const quantTrendingResolvers = require('./quant-trending');
 const authResolvers = require('./auth');
 const forumResolvers = require('./forum');
 const engagementResolvers = require('./engagement');
+const donationsResolvers = require('./donations');
 
 // Base resolvers
 const baseResolvers = {
@@ -13,4 +14,4 @@ const baseResolvers = {
 };
 
 // Merge resolvers
-module.exports = [baseResolvers, stockResolvers, investmentClockResolvers, quantTrendingResolvers, authResolvers, forumResolvers, engagementResolvers];
+module.exports = [baseResolvers, stockResolvers, investmentClockResolvers, quantTrendingResolvers, authResolvers, forumResolvers, engagementResolvers, donationsResolvers];

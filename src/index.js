@@ -7,6 +7,8 @@ const resolvers = require('./resolvers');
 const db = require('./db');
 const supabaseDb = require('./db/supabase');
 const { getUserFromToken } = require('./auth/verify');
+const { getStripe } = require('./lib/stripe');
+const { recordDonation } = require('./db/donations');
 
 // Load environment variables
 dotenv.config();
@@ -45,6 +47,45 @@ async function startServer() {
       ],
       exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials']
     }));
+
+    // Stripe webhook -- needs the raw request body for signature verification,
+    // so it's registered with its own express.raw() parser scoped to this path
+    // only, ahead of Apollo's own body handling on /graphql. The redirect back
+    // to the client after checkout is never trusted for recording a donation;
+    // this route (verified via STRIPE_WEBHOOK_SECRET) is the only writer.
+    app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+      let event;
+      try {
+        event = getStripe().webhooks.constructEvent(
+          req.body,
+          req.headers['stripe-signature'],
+          process.env.STRIPE_WEBHOOK_SECRET
+        );
+      } catch (err) {
+        console.error('Stripe webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
+
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        if (session.client_reference_id) {
+          try {
+            await recordDonation({
+              userId: session.client_reference_id,
+              amountCents: session.amount_total,
+              currency: session.currency,
+              stripeSessionId: session.id,
+              stripePaymentIntentId: session.payment_intent,
+            });
+          } catch (err) {
+            console.error('Failed to record donation:', err);
+            return res.status(500).send('Internal error recording donation');
+          }
+        }
+      }
+
+      res.json({ received: true });
+    });
 
     // Initialize Apollo Server
     const server = new ApolloServer({

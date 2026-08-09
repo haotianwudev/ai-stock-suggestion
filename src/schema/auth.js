@@ -8,6 +8,7 @@ const authSchema = gql`
     avatarUrl: String
     youtubeSubscribed: Boolean!
     likedCount: Int!
+    donatedCents: Int!
     tier: Int!
   }
 

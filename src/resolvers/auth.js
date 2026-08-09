@@ -20,6 +20,7 @@ const authResolvers = {
         avatarUrl: profile?.avatarUrl ?? null,
         youtubeSubscribed: profile?.youtubeSubscribed ?? false,
         likedCount: profile?.likedCount ?? 0,
+        donatedCents: profile?.donatedCents ?? 0,
         tier: profile?.tier ?? 1,
       };
     },
@@ -46,6 +47,7 @@ const authResolvers = {
         avatarUrl: profile.avatarUrl,
         youtubeSubscribed: current?.youtubeSubscribed ?? false,
         likedCount: current?.likedCount ?? 0,
+        donatedCents: current?.donatedCents ?? 0,
         tier: current?.tier ?? 1,
       };
     },
@@ -61,6 +63,7 @@ const authResolvers = {
         avatarUrl: current?.avatarUrl ?? null,
         youtubeSubscribed: profile.youtubeSubscribed,
         likedCount: profile.likedCount,
+        donatedCents: current?.donatedCents ?? 0,
         tier: profile.tier,
       };
     },
