@@ -1,4 +1,4 @@
-const { AuthenticationError, UserInputError } = require('apollo-server');
+const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server');
 const {
   getProfile,
   updateProfile,
@@ -8,6 +8,9 @@ const {
 } = require('../db/auth');
 
 const ALLOWED_VIDEO_SOURCES = ['youtube', 'bilibili'];
+
+// Mirrors MIN_VIDEO_PREFERENCE_TIER in client/src/lib/tiers.ts -- keep both in sync.
+const MIN_VIDEO_PREFERENCE_TIER = 4;
 
 function requireUser(context) {
   if (!context.user) {
@@ -83,6 +86,10 @@ const authResolvers = {
       const user = requireUser(context);
       if (!ALLOWED_VIDEO_SOURCES.includes(source)) {
         throw new UserInputError('Invalid video source.');
+      }
+      const existing = await getProfile(user.id);
+      if ((existing?.tier ?? 1) < MIN_VIDEO_PREFERENCE_TIER) {
+        throw new ForbiddenError('Setting a preferred video platform requires Senior Quant (Tier 4) or above.');
       }
       const profile = await setPreferredVideoSource(user.id, source);
       const current = await getProfile(user.id);
