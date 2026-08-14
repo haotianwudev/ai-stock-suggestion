@@ -1,5 +1,13 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
-const { getProfile, updateProfile, setYoutubeSubscribed, ALLOWED_AVATARS } = require('../db/auth');
+const {
+  getProfile,
+  updateProfile,
+  setYoutubeSubscribed,
+  setPreferredVideoSource,
+  ALLOWED_AVATARS,
+} = require('../db/auth');
+
+const ALLOWED_VIDEO_SOURCES = ['youtube', 'bilibili'];
 
 function requireUser(context) {
   if (!context.user) {
@@ -22,6 +30,7 @@ const authResolvers = {
         likedCount: profile?.likedCount ?? 0,
         donatedCents: profile?.donatedCents ?? 0,
         tier: profile?.tier ?? 1,
+        preferredVideoSource: profile?.preferredVideoSource ?? 'youtube',
       };
     },
   },
@@ -49,6 +58,7 @@ const authResolvers = {
         likedCount: current?.likedCount ?? 0,
         donatedCents: current?.donatedCents ?? 0,
         tier: current?.tier ?? 1,
+        preferredVideoSource: current?.preferredVideoSource ?? 'youtube',
       };
     },
 
@@ -65,6 +75,27 @@ const authResolvers = {
         likedCount: profile.likedCount,
         donatedCents: current?.donatedCents ?? 0,
         tier: profile.tier,
+        preferredVideoSource: current?.preferredVideoSource ?? 'youtube',
+      };
+    },
+
+    setPreferredVideoSource: async (parent, { source }, context) => {
+      const user = requireUser(context);
+      if (!ALLOWED_VIDEO_SOURCES.includes(source)) {
+        throw new UserInputError('Invalid video source.');
+      }
+      const profile = await setPreferredVideoSource(user.id, source);
+      const current = await getProfile(user.id);
+      return {
+        id: user.id,
+        email: user.email,
+        displayName: current?.displayName ?? null,
+        avatarUrl: current?.avatarUrl ?? null,
+        youtubeSubscribed: current?.youtubeSubscribed ?? false,
+        likedCount: current?.likedCount ?? 0,
+        donatedCents: current?.donatedCents ?? 0,
+        tier: current?.tier ?? 1,
+        preferredVideoSource: profile.preferredVideoSource,
       };
     },
   },

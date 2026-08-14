@@ -13,7 +13,8 @@ async function getProfile(userId) {
   const result = await db.query(
     `SELECT display_name AS "displayName", avatar_url AS "avatarUrl",
             youtube_subscribed AS "youtubeSubscribed", liked_count AS "likedCount",
-            donated_cents AS "donatedCents", tier
+            donated_cents AS "donatedCents", tier,
+            preferred_video_source AS "preferredVideoSource"
      FROM profiles WHERE id = $1`,
     [userId]
   );
@@ -56,4 +57,20 @@ async function setYoutubeSubscribed(userId, subscribed) {
 // video via the liked_videos table) drives tier promotion 3-7 -- see that
 // file for the ladder.
 
-module.exports = { getProfile, updateProfile, setYoutubeSubscribed, ALLOWED_AVATARS };
+async function setPreferredVideoSource(userId, source) {
+  const result = await db.query(
+    `UPDATE profiles SET preferred_video_source = $2
+     WHERE id = $1
+     RETURNING preferred_video_source AS "preferredVideoSource"`,
+    [userId, source]
+  );
+  return result.rows[0];
+}
+
+module.exports = {
+  getProfile,
+  updateProfile,
+  setYoutubeSubscribed,
+  setPreferredVideoSource,
+  ALLOWED_AVATARS,
+};
