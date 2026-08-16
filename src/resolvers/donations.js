@@ -38,7 +38,7 @@ const donationsResolvers = {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.FRONTEND_URL}/donate?success=true`,
+        success_url: `${process.env.FRONTEND_URL}/donate/thanks`,
         cancel_url: `${process.env.FRONTEND_URL}/donate?canceled=true`,
       });
 
