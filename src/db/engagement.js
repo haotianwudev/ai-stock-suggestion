@@ -8,10 +8,10 @@ const db = require('./supabase');
 // Ladder mirrors LIKE_TIER_LADDER in client/src/lib/tiers.ts -- keep both in
 // sync:
 //   subscribed + liked_count >= 1  -> tier 3 (comments)
-//   liked_count >= 5               -> tier 4 (premium articles)
-//   liked_count >= 25              -> tier 5
-//   liked_count >= 100             -> tier 6
-//   liked_count >= 200             -> tier 7 (ladder stops here; 8-9 are manual-only)
+//   liked_count >= 10              -> tier 4 (premium articles)
+//   liked_count >= 50              -> tier 5
+//   liked_count >= 200             -> tier 6
+//   liked_count >= 400             -> tier 7 (ladder stops here; 8-9 are manual-only)
 async function attestLiked(userId, articleSlug) {
   // The liked_videos INSERT is a data-modifying CTE: Postgres runs it exactly
   // once regardless of how many times `ins` is referenced below, so this is
@@ -26,10 +26,10 @@ async function attestLiked(userId, articleSlug) {
      UPDATE profiles SET
        liked_count = liked_count + (SELECT count(*) FROM ins),
        tier = CASE
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 200 THEN GREATEST(tier, 7)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 100 THEN GREATEST(tier, 6)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 25 THEN GREATEST(tier, 5)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 5 THEN GREATEST(tier, 4)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= 400 THEN GREATEST(tier, 7)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= 200 THEN GREATEST(tier, 6)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= 50 THEN GREATEST(tier, 5)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= 10 THEN GREATEST(tier, 4)
          WHEN youtube_subscribed = true THEN GREATEST(tier, 3)
          ELSE tier
        END
