@@ -1,17 +1,10 @@
 const db = require('./supabase');
+const { LIKE_THRESHOLDS } = require('../lib/tiers');
 
 // Honor-system "liked a paired YouTube video" attestation -- no verification
 // that they actually liked it on YouTube, but identity-tracked and idempotent
 // per (user, article): liking the same video twice is a no-op, so liked_count
 // (and the tier ladder below) counts distinct videos, not raw clicks.
-//
-// Ladder mirrors LIKE_TIER_LADDER in client/src/lib/tiers.ts -- keep both in
-// sync:
-//   subscribed + liked_count >= 1  -> tier 3 (comments)
-//   liked_count >= 10              -> tier 4 (premium articles)
-//   liked_count >= 50              -> tier 5
-//   liked_count >= 200             -> tier 6
-//   liked_count >= 400             -> tier 7 (ladder stops here; 8-9 are manual-only)
 async function attestLiked(userId, articleSlug) {
   // The liked_videos INSERT is a data-modifying CTE: Postgres runs it exactly
   // once regardless of how many times `ins` is referenced below, so this is
@@ -26,10 +19,10 @@ async function attestLiked(userId, articleSlug) {
      UPDATE profiles SET
        liked_count = liked_count + (SELECT count(*) FROM ins),
        tier = CASE
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 400 THEN GREATEST(tier, 7)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 200 THEN GREATEST(tier, 6)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 50 THEN GREATEST(tier, 5)
-         WHEN liked_count + (SELECT count(*) FROM ins) >= 10 THEN GREATEST(tier, 4)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= ${LIKE_THRESHOLDS.TIER_7} THEN GREATEST(tier, 7)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= ${LIKE_THRESHOLDS.TIER_6} THEN GREATEST(tier, 6)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= ${LIKE_THRESHOLDS.TIER_5} THEN GREATEST(tier, 5)
+         WHEN liked_count + (SELECT count(*) FROM ins) >= ${LIKE_THRESHOLDS.TIER_4} THEN GREATEST(tier, 4)
          WHEN youtube_subscribed = true THEN GREATEST(tier, 3)
          ELSE tier
        END

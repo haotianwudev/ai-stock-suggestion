@@ -1,4 +1,5 @@
 const db = require('./supabase');
+const { DONATION_THRESHOLDS_CENTS } = require('../lib/tiers');
 
 // Only the Stripe webhook (checkout.session.completed) calls this, after
 // signature verification -- never trust the client-side success redirect.
@@ -16,10 +17,10 @@ async function recordDonation({ userId, amountCents, currency, stripeSessionId, 
      UPDATE profiles SET
        donated_cents = donated_cents + COALESCE((SELECT amount_cents FROM ins), 0),
        tier = CASE
-         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= 19999 THEN GREATEST(tier, 7)
-         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= 9999  THEN GREATEST(tier, 6)
-         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= 2999  THEN GREATEST(tier, 5)
-         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= 999   THEN GREATEST(tier, 4)
+         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= ${DONATION_THRESHOLDS_CENTS.TIER_7} THEN GREATEST(tier, 7)
+         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= ${DONATION_THRESHOLDS_CENTS.TIER_6} THEN GREATEST(tier, 6)
+         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= ${DONATION_THRESHOLDS_CENTS.TIER_5} THEN GREATEST(tier, 5)
+         WHEN donated_cents + COALESCE((SELECT amount_cents FROM ins), 0) >= ${DONATION_THRESHOLDS_CENTS.TIER_4} THEN GREATEST(tier, 4)
          ELSE tier
        END
      WHERE id = $1
