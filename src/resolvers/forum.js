@@ -23,6 +23,7 @@ const { getProfile } = require('../db/auth');
 // Site Feedback is exempt: everyone should be able to leave feedback
 // regardless of tier, so that category bypasses the check entirely.
 const MIN_COMMENT_TIER = 3;
+const MIN_MODERATOR_TIER = 8; // Partner (Tier 8) & Head Quant / Admin (Tier 9)
 const SITE_FEEDBACK_SLUG = 'site-feedback';
 
 function requireUser(context) {
@@ -112,8 +113,13 @@ const forumResolvers = {
       if (!post) {
         throw new UserInputError('Post not found.');
       }
-      if (post.authorId !== user.id) {
-        throw new ForbiddenError("You can't delete someone else's post.");
+      const isOwner = post.authorId === user.id;
+      if (!isOwner) {
+        const profile = await getProfile(user.id);
+        const tier = profile?.tier ?? 1;
+        if (tier < MIN_MODERATOR_TIER) {
+          throw new ForbiddenError("You don't have permission to delete this post.");
+        }
       }
       await deletePostById(id);
       return true;
