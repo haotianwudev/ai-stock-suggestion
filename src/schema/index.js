@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 const stockSchema = require('./stock');
 const investmentClockSchema = require('./investment-clock');
+const volRegimeSchema = require('./vol-regime');
 const quantTrendingSchema = require('./quant-trending');
 const authSchema = require('./auth');
 const forumSchema = require('./forum');
@@ -19,4 +20,4 @@ const baseTypeDefs = gql`
 `;
 
 // Merge schemas
-module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, quantTrendingSchema, authSchema, forumSchema, engagementSchema, donationsSchema];
+module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, volRegimeSchema, quantTrendingSchema, authSchema, forumSchema, engagementSchema, donationsSchema];
