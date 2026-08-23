@@ -43,6 +43,8 @@ async function getLatestSnapshot() {
       CAST(s.rr25 AS FLOAT)                   AS "rr25",
       CAST(s.fly25 AS FLOAT)                  AS "fly25",
       CAST(s.normalized_skew AS FLOAT)        AS "normalizedSkew",
+      CAST(s.atm_skew_slope AS FLOAT)         AS "atmSkewSlope",
+      CAST(s.ssr AS FLOAT)                    AS "ssr",
       CAST(s.front_atm_iv AS FLOAT)           AS "frontAtmIv",
       CAST(s.back_atm_iv AS FLOAT)            AS "backAtmIv",
       CAST(s.term_slope AS FLOAT)             AS "termSlope",
@@ -82,6 +84,8 @@ async function getSnapshotHistory(sessions = 120) {
       CAST(rr25 AS FLOAT)              AS "rr25",
       CAST(fly25 AS FLOAT)             AS "fly25",
       CAST(normalized_skew AS FLOAT)   AS "normalizedSkew",
+      CAST(atm_skew_slope AS FLOAT)    AS "atmSkewSlope",
+      CAST(ssr AS FLOAT)               AS "ssr",
       CAST(net_gex_m AS FLOAT)         AS "netGexM",
       CAST(pcr_volume AS FLOAT)        AS "pcrVolume",
       CAST(pcr_oi AS FLOAT)            AS "pcrOi"

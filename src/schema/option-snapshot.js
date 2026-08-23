@@ -19,6 +19,17 @@ const schema = gql`
     fly25: Float
     normalizedSkew: Float
 
+    "d(IV vol pts)/d(ln K/S) at the money on the reference cycle. Negative for equity indices."
+    atmSkewSlope: Float
+    """
+    Skew Stickiness Ratio: realised move in ATM IV per unit log-spot, divided by the skew that
+    was in place. ~1 sticky strike, ~0 sticky delta, >1 the surface repriced rather than shifted.
+    Null on the first stored session and on days the index barely moved (the ratio is numerically
+    meaningless when the denominator approaches zero). Platform-specific normalisation — see the
+    ETL docs before comparing against a published SSR.
+    """
+    ssr: Float
+
     frontAtmIv: Float
     backAtmIv: Float
     termSlope: Float
@@ -53,6 +64,8 @@ const schema = gql`
     rr25: Float
     fly25: Float
     normalizedSkew: Float
+    atmSkewSlope: Float
+    ssr: Float
     netGexM: Float
     pcrVolume: Float
     pcrOi: Float
