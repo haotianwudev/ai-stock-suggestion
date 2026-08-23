@@ -19,6 +19,7 @@ const forumSchema = gql`
     authorId: ID
     authorDisplayName: String
     authorAvatarUrl: String
+    authorTier: Int
     status: String!
     pinned: Boolean!
     locked: Boolean!
@@ -39,6 +40,7 @@ const forumSchema = gql`
     authorId: ID!
     authorDisplayName: String
     authorAvatarUrl: String
+    authorTier: Int
     body: String!
     status: String!
     createdAt: String!
