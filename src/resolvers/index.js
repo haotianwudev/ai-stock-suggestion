@@ -2,6 +2,7 @@ const stockResolvers = require('./stock');
 const investmentClockResolvers = require('./investment-clock');
 const volRegimeResolvers = require('./vol-regime');
 const quantTrendingResolvers = require('./quant-trending');
+const optionSnapshotResolvers = require('./option-snapshot');
 const authResolvers = require('./auth');
 const forumResolvers = require('./forum');
 const engagementResolvers = require('./engagement');
@@ -15,4 +16,4 @@ const baseResolvers = {
 };
 
 // Merge resolvers
-module.exports = [baseResolvers, stockResolvers, investmentClockResolvers, volRegimeResolvers, quantTrendingResolvers, authResolvers, forumResolvers, engagementResolvers, donationsResolvers];
+module.exports = [baseResolvers, stockResolvers, investmentClockResolvers, volRegimeResolvers, quantTrendingResolvers, optionSnapshotResolvers, authResolvers, forumResolvers, engagementResolvers, donationsResolvers];

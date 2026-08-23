@@ -3,6 +3,7 @@ const stockSchema = require('./stock');
 const investmentClockSchema = require('./investment-clock');
 const volRegimeSchema = require('./vol-regime');
 const quantTrendingSchema = require('./quant-trending');
+const optionSnapshotSchema = require('./option-snapshot');
 const authSchema = require('./auth');
 const forumSchema = require('./forum');
 const engagementSchema = require('./engagement');
@@ -20,4 +21,4 @@ const baseTypeDefs = gql`
 `;
 
 // Merge schemas
-module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, volRegimeSchema, quantTrendingSchema, authSchema, forumSchema, engagementSchema, donationsSchema];
+module.exports = [baseTypeDefs, stockSchema, investmentClockSchema, volRegimeSchema, quantTrendingSchema, optionSnapshotSchema, authSchema, forumSchema, engagementSchema, donationsSchema];
