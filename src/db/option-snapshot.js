@@ -172,8 +172,13 @@ async function getOpenInterestFlow() {
       SELECT
         c.opt_type,
         c.open_interest                        AS oi_now,
-        COALESCE(p.open_interest, 0)           AS oi_prev,
-        c.volume                               AS vol_now
+        p.open_interest                        AS oi_prev,
+        c.volume                               AS vol_now,
+        -- A contract the prior session did not store is not a contract that held zero open
+        -- interest; it is one we cannot difference at all. COALESCE(p.open_interest, 0) here
+        -- would book its entire resting OI as a same-day build -- indistinguishable from real
+        -- conviction, and the dominant term whenever a whole cycle rolls into the stored set.
+        (p.biz_date IS NOT NULL)               AS comparable
       FROM spx_option_chain_snapshot c
       LEFT JOIN spx_option_chain_snapshot p
         ON  p.biz_date   = (SELECT d FROM prev)
@@ -190,12 +195,22 @@ async function getOpenInterestFlow() {
       -- Cast to FLOAT rather than BIGINT: pg returns bigint as a *string* to protect precision,
       -- which would then lean on GraphQL's implicit string->Float coercion. These counts are far
       -- below 2^53, so a double is lossless here and the type crossing the wire is unambiguous.
-      CAST(SUM(CASE WHEN opt_type='C' THEN oi_now - oi_prev ELSE 0 END) AS FLOAT) AS "callOiChange",
-      CAST(SUM(CASE WHEN opt_type='P' THEN oi_now - oi_prev ELSE 0 END) AS FLOAT) AS "putOiChange",
+      --
+      -- Levels are summed over the whole stored slice; changes only over the rows present in
+      -- both sessions. Restricting the levels too would understate the book, and restricting
+      -- neither would fabricate flow -- so the two are deliberately scoped differently.
+      CAST(SUM(CASE WHEN opt_type='C' AND comparable THEN oi_now - oi_prev ELSE 0 END) AS FLOAT) AS "callOiChange",
+      CAST(SUM(CASE WHEN opt_type='P' AND comparable THEN oi_now - oi_prev ELSE 0 END) AS FLOAT) AS "putOiChange",
       CAST(SUM(CASE WHEN opt_type='C' THEN oi_now ELSE 0 END) AS FLOAT)           AS "callOi",
       CAST(SUM(CASE WHEN opt_type='P' THEN oi_now ELSE 0 END) AS FLOAT)           AS "putOi",
-      CAST(SUM(CASE WHEN opt_type='C' THEN vol_now ELSE 0 END) AS FLOAT)          AS "callVolume",
-      CAST(SUM(CASE WHEN opt_type='P' THEN vol_now ELSE 0 END) AS FLOAT)          AS "putVolume"
+      -- Volume is scoped to the comparable rows as well, because it is the denominator
+      -- classifyFlow() divides the OI change by. Mixing a full-slice denominator with a
+      -- restricted numerator would drag every ratio toward zero and read as CHURNING.
+      CAST(SUM(CASE WHEN opt_type='C' AND comparable THEN vol_now ELSE 0 END) AS FLOAT) AS "callVolume",
+      CAST(SUM(CASE WHEN opt_type='P' AND comparable THEN vol_now ELSE 0 END) AS FLOAT) AS "putVolume",
+      -- Coverage of the difference. If this falls well below 1 the flow read is describing only
+      -- part of the book, which is worth knowing before trusting BUILDING vs CLOSING.
+      CAST(COUNT(*) FILTER (WHERE comparable) AS FLOAT) / NULLIF(COUNT(*), 0) AS "comparableShare"
     FROM joined
   `);
 
@@ -208,7 +223,7 @@ async function getOpenInterestFlow() {
       callOiChange: null, putOiChange: null,
       callOi: row ? row.callOi : null, putOi: row ? row.putOi : null,
       callVolume: row ? row.callVolume : null, putVolume: row ? row.putVolume : null,
-      callState: null, putState: null,
+      callState: null, putState: null, comparableShare: null,
     };
   }
 
@@ -249,10 +264,13 @@ async function getStrikeFlow(limit = 12) {
       c.opt_type                                   AS "optType",
       CAST(c.strike AS FLOAT)                      AS "strike",
       CAST(c.open_interest AS FLOAT)               AS "openInterest",
-      CAST(c.open_interest - COALESCE(p.open_interest, 0) AS FLOAT) AS "oiChange",
+      CAST(c.open_interest - p.open_interest AS FLOAT) AS "oiChange",
       CAST(c.volume AS FLOAT)                      AS "volume"
     FROM spx_option_chain_snapshot c
-    LEFT JOIN spx_option_chain_snapshot p
+    -- INNER, not LEFT. A strike with no prior row has no measurable change, and defaulting it to
+    -- zero would rank its full open interest as the largest move on the board -- this query
+    -- orders by ABS(change), so those artefacts would crowd out every real one.
+    JOIN spx_option_chain_snapshot p
       ON  p.biz_date   = (SELECT d FROM prev)
       AND p.expiration = c.expiration
       AND p.root       = c.root
@@ -260,7 +278,7 @@ async function getStrikeFlow(limit = 12) {
       AND p.strike     = c.strike
     WHERE c.biz_date = (SELECT d FROM cur)
       AND (SELECT COUNT(*) FROM sessions) >= 2
-    ORDER BY ABS(c.open_interest - COALESCE(p.open_interest, 0)) DESC
+    ORDER BY ABS(c.open_interest - p.open_interest) DESC
     LIMIT $1
   `, [limit]);
   return result.rows;

@@ -110,6 +110,13 @@ const schema = gql`
     putVolume: Float
     callState: String
     putState: String
+    """
+    Fraction of the current session's stored contracts that also exist in the prior session.
+    Changes and volume are measured only over that intersection, since a contract with no prior
+    row cannot be differenced. Near 1 in steady state; a low value means the flow read covers
+    only part of the book.
+    """
+    comparableShare: Float
   }
 
   "Per-strike open-interest movers between the last two stored sessions."
