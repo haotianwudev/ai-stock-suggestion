@@ -39,6 +39,9 @@ async function getLatestData() {
         icsa_value,   LAG(icsa_value,   12) OVER (ORDER BY biz_date) AS icsa_prev,
         cpi_yoy,
         cpi_mom_ann,
+        pce_value,
+        pce_yoy,
+        pce_mom_ann,
         t5yie_value,
         ppi_yoy
       FROM investment_clock_data
@@ -57,6 +60,9 @@ async function getLatestData() {
       CAST(cli_value AS FLOAT)           AS "cliValue",
       CAST(icsa_value AS FLOAT)          AS "icsaValue",
       CAST(cpi_yoy AS FLOAT)             AS "cpiYoy",
+      CAST(pce_value AS FLOAT)           AS "pceValue",
+      CAST(pce_yoy AS FLOAT)             AS "pceYoy",
+      CAST(pce_mom_ann AS FLOAT)         AS "pceMomAnn",
       CAST(t5yie_value AS FLOAT)         AS "t5yieValue",
       CAST(ppi_yoy AS FLOAT)             AS "ppiYoy",
       CAST(COALESCE(cpi_mom_ann, (
@@ -99,6 +105,9 @@ async function getHistoricalData(months = 24) {
       CAST(icsa_value AS FLOAT)         AS "icsaValue",
       CAST(cpi_yoy AS FLOAT)           AS "cpiYoy",
       CAST(cpi_mom_ann AS FLOAT)        AS "cpiMomAnn",
+      CAST(pce_value AS FLOAT)          AS "pceValue",
+      CAST(pce_yoy AS FLOAT)            AS "pceYoy",
+      CAST(pce_mom_ann AS FLOAT)        AS "pceMomAnn",
       CAST(t5yie_value AS FLOAT)        AS "t5yieValue",
       CAST(ppi_yoy AS FLOAT)            AS "ppiYoy"
     FROM investment_clock_data

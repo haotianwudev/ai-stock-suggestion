@@ -16,6 +16,10 @@ const investmentClockSchema = gql`
     icsaValue: Float
     cpiYoy: Float
     cpiMomAnn: Float
+    "Core PCE — the FOMC's own target gauge; drives the inflation composite."
+    pceValue: Float
+    pceYoy: Float
+    pceMomAnn: Float
     t5yieValue: Float
     ppiYoy: Float
     gdpYoyPct: Float
