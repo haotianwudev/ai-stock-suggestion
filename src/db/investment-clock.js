@@ -88,7 +88,7 @@ async function getLatestData() {
   return result.rows[0] || null;
 }
 
-async function getHistoricalData(months = 24) {
+async function getHistoricalData(months = 120) {
   const result = await db.query(`
     SELECT
       TO_CHAR(biz_date, 'YYYY-MM-DD')  AS "bizDate",

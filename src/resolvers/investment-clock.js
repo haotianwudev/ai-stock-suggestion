@@ -7,7 +7,9 @@ const investmentClockResolvers = {
         const [current, latestData, history] = await Promise.all([
           getLatestEvaluation(),
           getLatestData(),
-          getHistoricalData(24),
+          // 10 years: two years showed the current regime but not what preceded it,
+          // so a reader could not tell an unusual reading from a normal one.
+          getHistoricalData(120),
         ]);
 
         // JSONB columns come back as JS objects from pg — convert arrays for GraphQL
